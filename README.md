@@ -2,6 +2,7 @@
 
 [![Test Status](https://github.com/TheGrowthExponent/todo-issue/actions/workflows/todo-issue.yml/badge.svg)](https://github.com/TheGrowthExponent/todo-issue/actions/workflows/todo-issue.yml)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/thegrowthexponent)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=3D3EH5AXHUKEJ)
 
 Automatically convert TODO, FIXME, HACK, SECURITY, BUG, and XXX comments in your codebase into GitHub Issues—with rich metadata, deduplication, and priority classification.
 
