@@ -20,7 +20,10 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: pnpm ci
+        run: |
+          npm install pnpm
+          pnpm install
+          pnpm ci
 
       - name: Run TODO→ISSUE Action
         uses: ./
