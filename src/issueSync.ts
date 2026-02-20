@@ -1,14 +1,16 @@
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
-import github from "@actions/github";
+import * as github from "@actions/github";
 
 /**
  * Generates a unique match key for a TODO (used for deduplication in issue body)
- * @param {object} todo
+ * @param {Todo} todo
  * @returns {string}
  */
-export function generateTodoKey(todo) {
+import { Todo, Repo, IssueConfig, IssueContext } from "./types.js";
+
+export function generateTodoKey(todo: Todo): string {
   // Use file path, original line, and (optionally) commit SHA for uniqueness
   // Format: todo-issue-key:<file>:<line>
   return `todo-issue-key:${todo.file}:${todo.line}`;
@@ -19,7 +21,7 @@ export function generateTodoKey(todo) {
  * @param {string} key
  * @returns {string}
  */
-export function renderKeyComment(key) {
+export function renderKeyComment(key: string): string {
   return `<!-- ${key} -->`;
 }
 
@@ -30,7 +32,11 @@ export function renderKeyComment(key) {
  * @param {string} key - Unique TODO key
  * @returns {Promise<object|null>} - Issue object or null if not found
  */
-export async function findExistingIssue(octokit, repo, key) {
+export async function findExistingIssue(
+  octokit: any,
+  repo: Repo,
+  key: string,
+): Promise<any | null> {
   // Search both open and closed issues for the hidden key comment
   const query = `repo:${repo.owner}/${repo.repo} "${key}" in:body`;
   const results = await octokit.rest.search.issuesAndPullRequests({
@@ -54,13 +60,13 @@ export async function findExistingIssue(octokit, repo, key) {
  * @returns {Promise<object>} - Created issue
  */
 export async function createIssue(
-  octokit,
-  repo,
-  todo,
-  issueConfig,
-  title,
-  body,
-) {
+  octokit: any,
+  repo: Repo,
+  todo: Todo,
+  issueConfig: IssueConfig,
+  title: string,
+  body: string,
+): Promise<any> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -88,13 +94,13 @@ export async function createIssue(
  * @returns {Promise<object>} - Updated issue
  */
 export async function updateIssue(
-  octokit,
-  repo,
-  issue_number,
-  title,
-  body,
-  issueConfig,
-) {
+  octokit: any,
+  repo: Repo,
+  issue_number: number,
+  title: string,
+  body: string,
+  issueConfig: IssueConfig,
+): Promise<any> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -120,7 +126,12 @@ export async function updateIssue(
  * @param {string} closingComment
  * @returns {Promise<void>}
  */
-export async function closeIssue(octokit, repo, issue_number, closingComment) {
+export async function closeIssue(
+  octokit: any,
+  repo: Repo,
+  issue_number: number,
+  closingComment: string,
+): Promise<void> {
   if (closingComment) {
     await octokit.rest.issues.createComment({
       owner: repo.owner,
@@ -144,7 +155,11 @@ export async function closeIssue(octokit, repo, issue_number, closingComment) {
  * @param {number} issue_number
  * @returns {Promise<void>}
  */
-export async function reopenIssue(octokit, repo, issue_number) {
+export async function reopenIssue(
+  octokit: any,
+  repo: Repo,
+  issue_number: number,
+): Promise<void> {
   await octokit.rest.issues.update({
     owner: repo.owner,
     repo: repo.repo,
@@ -160,14 +175,21 @@ export async function reopenIssue(octokit, repo, issue_number) {
  * @param {string} rationale - Priority rationale
  * @returns {string}
  */
-export function renderIssueBody(todo, context, rationale) {
+export function renderIssueBody(
+  todo: Todo,
+  context: IssueContext,
+  rationale: string,
+): string {
   const keyComment = renderKeyComment(generateTodoKey(todo));
   const codeContext = [
     ...todo.contextBefore.map(
-      (l, i) => `// line ${todo.line - todo.contextBefore.length + i}: ${l}`,
+      (l: string, i: number) =>
+        `// line ${todo.line - todo.contextBefore.length + i}: ${l}`,
     ),
     `// line ${todo.line}: ${todo.rawLine}`,
-    ...todo.contextAfter.map((l, i) => `// line ${todo.line + 1 + i}: ${l}`),
+    ...todo.contextAfter.map(
+      (l: string, i: number) => `// line ${todo.line + 1 + i}: ${l}`,
+    ),
   ].join("\n");
 
   return `

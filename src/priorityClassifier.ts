@@ -1,5 +1,7 @@
-// priorityClassifier.js
+// priorityClassifier.ts
 // Rule-based priority classifier for TODO comments
+
+import { Todo } from "./types.js";
 
 /**
  * Classifies the priority of a TODO comment based on tag, keywords, and optional manual override.
@@ -9,11 +11,14 @@
  *   - priority: string|null (manual override, e.g. P1, P2, etc.)
  * @returns {object} - { priority: 'P1'|'P2'|'P3'|'P4', rationale: string }
  */
-export function classifyPriority(todo) {
+export function classifyPriority(todo: Todo): {
+  priority: "P1" | "P2" | "P3" | "P4";
+  rationale: string;
+} {
   // Manual override always wins
   if (todo.priority && /^P[1-4]$/i.test(todo.priority)) {
     return {
-      priority: todo.priority.toUpperCase(),
+      priority: todo.priority.toUpperCase() as "P1" | "P2" | "P3" | "P4",
       rationale: `Manual override: priority specified as ${todo.priority.toUpperCase()} in comment.`,
     };
   }

@@ -2,9 +2,9 @@
 // -----------------------------------
 // Main pipeline: config → changed files → scan TODOs → classify → sync issues
 
-import core from "@actions/core";
-import github from "@actions/github";
-import simpleGit from "simple-git";
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import { simpleGit } from "simple-git";
 import { loadConfig } from "./config.js";
 import { getChangedFiles } from "./changedFiles.js";
 import { scanFilesForTodos } from "./todoScanner.js";
@@ -44,10 +44,10 @@ async function run() {
       );
     } else {
       // Full repo scan: get all tracked files
-      const ls = await git.lsFiles();
+      const ls = await git.raw(["ls-files"]);
       filesToScan = ls
         .split("\n")
-        .map((f) => f.trim())
+        .map((f: string) => f.trim())
         .filter(Boolean);
       core.info(`Scanning all tracked files (${filesToScan.length})`);
     }
@@ -55,7 +55,7 @@ async function run() {
     // Filter ignored paths
     const micromatch = (await import("micromatch")).default;
     filesToScan = filesToScan.filter(
-      (f) => !micromatch.isMatch(f, config.scan.ignore || []),
+      (f: string) => !micromatch.isMatch(f, config.scan.ignore || []),
     );
 
     // Scan files for TODOs (current state)
@@ -106,12 +106,16 @@ async function run() {
             octokit,
             repo,
             removedTodos,
-            { commit, author: "unknown", branch },
+            { commit, author: "unknown", branch, timestamp },
           );
           core.info(`Closed ${issuesClosed} issue(s) for removed TODOs.`);
         }
       } catch (err) {
-        core.warning(`Failed to detect/close removed TODOs: ${err.message}`);
+        if (err instanceof Error) {
+          core.warning(`Failed to detect/close removed TODOs: ${err.message}`);
+        } else {
+          core.warning("Failed to detect/close removed TODOs: Unknown error");
+        }
       }
     }
 
@@ -203,7 +207,11 @@ async function run() {
 
     core.endGroup();
   } catch (error) {
-    core.setFailed(error.message);
+    if (error instanceof Error) {
+      core.setFailed(error.message);
+    } else {
+      core.setFailed("Unknown error");
+    }
   }
 }
 

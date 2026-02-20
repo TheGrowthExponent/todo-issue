@@ -1,11 +1,36 @@
-// config.js
+// config.ts
 // Loads and validates .todo-issue.yml config with sensible defaults
 
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
+import { IssueConfig } from "./types.js";
 
-const DEFAULT_CONFIG = {
+type Config = {
+  scan: {
+    tags: string[];
+    ignore: string[];
+    context_lines: number;
+    diff_only: boolean;
+  };
+  issues: {
+    assignee_strategy: "owner" | "author" | "none";
+    milestone: string;
+    labels: {
+      p1: string[];
+      p2: string[];
+      p3: string[];
+      p4: string[];
+    };
+    require_owner_tag: boolean;
+  };
+  blocking: {
+    fail_on_p1: boolean;
+    fail_on_p2: boolean;
+  };
+};
+
+const DEFAULT_CONFIG: Config = {
   scan: {
     tags: ["TODO", "FIXME", "HACK", "SECURITY", "BUG", "XXX"],
     ignore: ["node_modules/", "dist/", "**/*.min.js", "**/*.lock"],
@@ -13,7 +38,7 @@ const DEFAULT_CONFIG = {
     diff_only: true,
   },
   issues: {
-    assignee_strategy: "owner", // owner | author | none
+    assignee_strategy: "owner",
     milestone: "backlog",
     labels: {
       p1: ["priority:critical", "security"],
@@ -31,21 +56,24 @@ const DEFAULT_CONFIG = {
 
 /**
  * Loads the .todo-issue.yml config file from the repo root, merges with defaults.
- * @param {string} configPath - Path to the config file (default: .todo-issue.yml)
- * @returns {object} - The merged config object
+ * @param configPath - Path to the config file (default: .todo-issue.yml)
+ * @returns The merged config object
  */
-export function loadConfig(configPath = ".todo-issue.yml") {
-  let userConfig = {};
+export function loadConfig(configPath: string = ".todo-issue.yml"): Config {
+  let userConfig: Partial<Config> = {};
   const absPath = path.resolve(process.cwd(), configPath);
 
   if (fs.existsSync(absPath)) {
     try {
       const fileContent = fs.readFileSync(absPath, "utf8");
-      userConfig = yaml.load(fileContent) || {};
+      userConfig = (yaml.load(fileContent) as Partial<Config>) || {};
     } catch (err) {
-      throw new Error(
-        `Failed to parse config file at ${configPath}: ${err.message}`,
-      );
+      if (err instanceof Error) {
+        throw new Error(
+          `Failed to parse config file at ${configPath}: ${err.message}`,
+        );
+      }
+      throw err;
     }
   }
 
@@ -56,18 +84,18 @@ export function loadConfig(configPath = ".todo-issue.yml") {
 /**
  * Deep merge two objects (simple implementation for config)
  */
-function deepMerge(target, source) {
+function deepMerge<T>(target: T, source: Partial<T>): T {
   if (typeof source !== "object" || source === null) return target;
   const output = { ...target };
-  for (const key of Object.keys(source)) {
+  for (const key of Object.keys(source) as (keyof T)[]) {
     if (
       source[key] &&
       typeof source[key] === "object" &&
       !Array.isArray(source[key])
     ) {
-      output[key] = deepMerge(target[key] || {}, source[key]);
-    } else {
-      output[key] = source[key];
+      output[key] = deepMerge((target[key] as any) || {}, source[key] as any);
+    } else if (source[key] !== undefined) {
+      output[key] = source[key] as T[typeof key];
     }
   }
   return output;

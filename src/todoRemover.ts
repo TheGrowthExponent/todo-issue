@@ -1,35 +1,39 @@
-// todoRemover.js
+// todoRemover.ts
 // Detects removed TODOs and closes corresponding GitHub Issues
 
 import { generateTodoKey, findExistingIssue, closeIssue } from "./issueSync.js";
+import { Todo, Repo, IssueContext } from "./types.js";
 
 /**
  * Detects which TODOs have been removed by comparing previous and current TODO lists.
- * @param {Array} previousTodos - Array of TODO objects from the previous scan (e.g., base branch)
- * @param {Array} currentTodos - Array of TODO objects from the current scan (e.g., head branch)
- * @returns {Array} - Array of TODOs that have been removed (present in previous, not in current)
+ * @param previousTodos - Array of TODO objects from the previous scan (e.g., base branch)
+ * @param currentTodos - Array of TODO objects from the current scan (e.g., head branch)
+ * @returns Array of TODOs that have been removed (present in previous, not in current)
  */
-export function detectRemovedTodos(previousTodos, currentTodos) {
+export function detectRemovedTodos(
+  previousTodos: Todo[],
+  currentTodos: Todo[],
+): Todo[] {
   const currentKeys = new Set(currentTodos.map(generateTodoKey));
   return previousTodos.filter(
-    (todo) => !currentKeys.has(generateTodoKey(todo)),
+    (todo: Todo) => !currentKeys.has(generateTodoKey(todo)),
   );
 }
 
 /**
  * Closes GitHub Issues for removed TODOs.
- * @param {object} octokit - Authenticated Octokit instance
- * @param {object} repo - { owner, repo }
- * @param {Array} removedTodos - Array of TODOs that have been removed
- * @param {object} context - { commit, author, branch }
- * @returns {Promise<number>} - Number of issues closed
+ * @param octokit - Authenticated Octokit instance
+ * @param repo - { owner, repo }
+ * @param removedTodos - Array of TODOs that have been removed
+ * @param context - { commit, author, branch }
+ * @returns Number of issues closed
  */
 export async function closeIssuesForRemovedTodos(
-  octokit,
-  repo,
-  removedTodos,
-  context,
-) {
+  octokit: any,
+  repo: Repo,
+  removedTodos: Todo[],
+  context: IssueContext,
+): Promise<number> {
   let closedCount = 0;
   for (const todo of removedTodos) {
     const key = generateTodoKey(todo);
@@ -45,11 +49,11 @@ export async function closeIssuesForRemovedTodos(
 
 /**
  * Utility to get TODOs from a scan result as a map by key.
- * @param {Array} todos
- * @returns {Map<string, object>}
+ * @param todos
+ * @returns Map<string, Todo>
  */
-export function todosToMapByKey(todos) {
-  const map = new Map();
+export function todosToMapByKey(todos: Todo[]): Map<string, Todo> {
+  const map = new Map<string, Todo>();
   for (const todo of todos) {
     map.set(generateTodoKey(todo), todo);
   }

@@ -8,10 +8,12 @@ import path from "path";
  * Supported comment tags (can be customized via config)
  * @example ['TODO', 'FIXME', 'HACK', 'SECURITY', 'BUG', 'XXX']
  */
-function buildTagRegex(tags) {
+import { Todo } from "./types.js";
+
+function buildTagRegex(tags: string[]): RegExp {
   // Escape tags for regex
   const tagPattern = tags
-    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .map((t: string) => t.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&"))
     .join("|");
   // Match single-line and multi-line comment styles
   // Supports: // TODO, # TODO, -- TODO, /* TODO */, """ TODO """, ''' TODO '''
@@ -29,7 +31,7 @@ function buildTagRegex(tags) {
 /**
  * Reads a file and returns its lines as an array
  */
-function readFileLines(filePath) {
+function readFileLines(filePath: string): string[] {
   const content = fs.readFileSync(filePath, "utf8");
   return content.split(/\r?\n/);
 }
@@ -42,14 +44,17 @@ function readFileLines(filePath) {
  *   - contextLines: number of lines before/after to include as context
  * @returns {Array} - Array of TODO objects with metadata
  */
-export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
-  const results = [];
+export function scanFileForTodos(
+  filePath: string,
+  { tags, contextLines = 3 }: { tags: string[]; contextLines?: number },
+): Todo[] {
+  const results: Todo[] = [];
   const lines = readFileLines(filePath);
   const tagRegex = buildTagRegex(tags);
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    let match;
+    let match: RegExpExecArray | null;
     tagRegex.lastIndex = 0; // Reset regex state for global regex
 
     while ((match = tagRegex.exec(line))) {
@@ -59,9 +64,9 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
       const commentText = (match[3] || match[6] || "").trim();
 
       // Extract author/priority from meta if present: e.g. (author), (priority:p2)
-      let author = null,
-        priority = null,
-        issueRef = null;
+      let author: string | null = null,
+        priority: string | null = null,
+        issueRef: string | null = null;
       if (meta) {
         // e.g. (author), (priority:p2), (issue:#123)
         const authorMatch = meta.match(
@@ -75,8 +80,8 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
       }
 
       // Context lines
-      const contextBefore = [];
-      const contextAfter = [];
+      const contextBefore: string[] = [];
+      const contextAfter: string[] = [];
       for (let b = Math.max(0, i - contextLines); b < i; b++) {
         contextBefore.push(lines[b]);
       }
@@ -112,8 +117,11 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
  * @param {object} options (see scanFileForTodos)
  * @returns {Array} - Array of TODO objects from all files
  */
-export function scanFilesForTodos(filePaths, options) {
-  const allTodos = [];
+export function scanFilesForTodos(
+  filePaths: string[],
+  options: { tags: string[]; contextLines?: number },
+): Todo[] {
+  const allTodos: Todo[] = [];
   for (const filePath of filePaths) {
     // Only scan text files (skip binaries)
     try {
