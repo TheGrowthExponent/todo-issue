@@ -54,7 +54,7 @@ async function run() {
       f => !micromatch.isMatch(f, config.scan.ignore || [])
     );
 
-    // Scan files for TODOs
+    // Scan files for TODOs (current state)
     const todos = scanFilesForTodos(filesToScan, {
       tags: config.scan.tags,
       contextLines: config.scan.context_lines
@@ -72,6 +72,38 @@ async function run() {
     let issuesCreated = 0;
     let issuesUpdated = 0;
     let issuesClosed = 0;
+
+    // --- Detect removed TODOs and close corresponding issues ---
+    // Only possible if diff_only is true and we can get the base commit
+    let removedTodos = [];
+    if (config.scan.diff_only && github.context.payload && github.context.payload.before) {
+      try {
+        // Checkout base commit to a temp location and scan for previous TODOs
+        const baseCommit = github.context.payload.before;
+        await git.raw(['checkout', baseCommit]);
+        const baseFiles = filesToScan; // Use same file list for base scan
+        const previousTodos = scanFilesForTodos(baseFiles, {
+          tags: config.scan.tags,
+          contextLines: config.scan.context_lines
+        });
+        // Restore HEAD
+        await git.raw(['checkout', github.context.sha]);
+        // Compare previous and current TODOs
+        const { detectRemovedTodos, closeIssuesForRemovedTodos } = await import('./todoRemover.js');
+        removedTodos = detectRemovedTodos(previousTodos, todos);
+        if (removedTodos.length > 0) {
+          issuesClosed = await closeIssuesForRemovedTodos(
+            octokit,
+            repo,
+            removedTodos,
+            { commit, author: 'unknown', branch }
+          );
+          core.info(`Closed ${issuesClosed} issue(s) for removed TODOs.`);
+        }
+      } catch (err) {
+        core.warning(`Failed to detect/close removed TODOs: ${err.message}`);
+      }
+    }
 
     // Process each TODO
     for (const todo of todos) {
@@ -147,8 +179,6 @@ async function run() {
         core.info(`Updated issue for TODO: ${title}`);
       }
     }
-
-    // TODO: Detect removed TODOs and close corresponding issues (not implemented in this scaffold)
 
     // Output summary
     const summary = [
