@@ -1,10 +1,9 @@
 ---
 name: ☕ Buy Me a Coffee
 about: Support the TODO→ISSUE project and its maintainers with a donation.
-title: "Support: Buy Me a Coffee"
+title: 'Support: Buy Me a Coffee'
 labels: donation
 assignees: ''
-
 ---
 
 # ☕ Support TODO→ISSUE

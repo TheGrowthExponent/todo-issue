@@ -1,10 +1,9 @@
 ---
 name: Bug Report or Feature Request
 about: Create a report to help us improve TODO→ISSUE or request a new feature.
-title: "[Bug] <describe your bug>" # or "[Feature] <describe your feature>"
+title: '[Bug] <describe your bug>' # or "[Feature] <describe your feature>"
 labels: ''
 assignees: ''
-
 ---
 
 ## What type of issue is this?
@@ -25,14 +24,16 @@ A clear and concise description of what the bug is, or what feature you are requ
 
 ## Steps to Reproduce (for bugs)
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Expected behavior:**
+
 <!-- A clear and concise description of what you expected to happen. -->
 
 **Actual behavior:**
+
 <!-- What actually happened? -->
 
 ---

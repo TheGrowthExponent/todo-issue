@@ -1,13 +1,13 @@
-name: "TODO→ISSUE: Automated TODO to GitHub Issue Pipeline"
+name: 'TODO→ISSUE: Automated TODO to GitHub Issue Pipeline'
 
 on:
   push:
     branches:
-      - "**"
+      - '**'
 
 jobs:
   todo_scan:
-    name: "Scan for TODOs and create GitHub Issues"
+    name: 'Scan for TODOs and create GitHub Issues'
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2

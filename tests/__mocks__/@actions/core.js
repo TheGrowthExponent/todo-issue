@@ -3,7 +3,7 @@ export default {
   warning: () => {},
   error: () => {},
   setFailed: () => {},
-  getInput: () => "",
+  getInput: () => '',
   setOutput: () => {},
   startGroup: () => {},
   endGroup: () => {},

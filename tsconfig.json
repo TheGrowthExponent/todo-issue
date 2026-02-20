@@ -11,8 +11,8 @@
     "strict": true,
     "skipLibCheck": true,
     "allowJs": false,
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "tests"],
+  "exclude": ["node_modules", "dist", "tests"]
 }

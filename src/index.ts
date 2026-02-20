@@ -16,13 +16,13 @@
  * - Outputs summary statistics for the workflow
  */
 
-import * as core from "@actions/core";
-import * as github from "@actions/github";
-import { simpleGit } from "simple-git";
-import { loadConfig } from "./config.js";
-import { getChangedFiles } from "./changedFiles.js";
-import { scanFilesForTodos } from "./todoScanner.js";
-import { classifyPriority } from "./priorityClassifier.js";
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { simpleGit } from 'simple-git';
+import { loadConfig } from './config.js';
+import { getChangedFiles } from './changedFiles.js';
+import { scanFilesForTodos } from './todoScanner.js';
+import { classifyPriority } from './priorityClassifier.js';
 import {
   generateTodoKey,
   renderIssueBody,
@@ -31,7 +31,7 @@ import {
   updateIssue,
   closeIssue,
   reopenIssue,
-} from "./issueSync.js";
+} from './issueSync.js';
 
 /**
  * Main runner for the TODO→ISSUE GitHub Action.
@@ -42,15 +42,15 @@ import {
  */
 async function run() {
   try {
-    core.startGroup("TODO→ISSUE Action: Initialization");
+    core.startGroup('TODO→ISSUE Action: Initialization');
 
     // === 1. Load Action Inputs ===
     /**
      * github_token: Required. Used for GitHub API authentication.
      * config_path: Optional. Path to .todo-issue.yml config file.
      */
-    const githubToken = core.getInput("github_token", { required: true });
-    const configPath = core.getInput("config_path") || ".todo-issue.yml";
+    const githubToken = core.getInput('github_token', { required: true });
+    const configPath = core.getInput('config_path') || '.todo-issue.yml';
 
     // === 2. Set up GitHub and Git clients ===
     const octokit = github.getOctokit(githubToken);
@@ -65,14 +65,12 @@ async function run() {
     let filesToScan = [];
     if (config.scan.diff_only) {
       filesToScan = await getChangedFiles(octokit);
-      core.info(
-        `Scanning changed files only (${filesToScan.length}): ${filesToScan.join(", ")}`,
-      );
+      core.info(`Scanning changed files only (${filesToScan.length}): ${filesToScan.join(', ')}`);
     } else {
       // Full repo scan: get all tracked files
-      const ls = await git.raw(["ls-files"]);
+      const ls = await git.raw(['ls-files']);
       filesToScan = ls
-        .split("\n")
+        .split('\n')
         .map((f: string) => f.trim())
         .filter(Boolean);
       core.info(`Scanning all tracked files (${filesToScan.length})`);
@@ -80,9 +78,9 @@ async function run() {
 
     // === 5. Filter ignored paths ===
     // Uses micromatch patterns from config.scan.ignore
-    const micromatch = (await import("micromatch")).default;
+    const micromatch = (await import('micromatch')).default;
     filesToScan = filesToScan.filter(
-      (f: string) => !micromatch.isMatch(f, config.scan.ignore || []),
+      (f: string) => !micromatch.isMatch(f, config.scan.ignore || [])
     );
 
     // === 6. Scan files for TODOs ===
@@ -96,9 +94,8 @@ async function run() {
 
     // === 7. Prepare repository context for issue metadata ===
     const repo = github.context.repo;
-    const branch =
-      github.context.ref?.split("/").slice(2).join("/") || "unknown";
-    const commit = github.context.sha?.slice(0, 7) || "unknown";
+    const branch = github.context.ref?.split('/').slice(2).join('/') || 'unknown';
+    const commit = github.context.sha?.slice(0, 7) || 'unknown';
     const timestamp = new Date().toISOString(); // Could use git log/blame for more accuracy
 
     // === 8. Initialize statistics counters ===
@@ -109,40 +106,35 @@ async function run() {
     // === 9. Detect removed TODOs and close corresponding issues ===
     // Only possible if diff_only is true and we can get the base commit
     let removedTodos = [];
-    if (
-      config.scan.diff_only &&
-      github.context.payload &&
-      github.context.payload.before
-    ) {
+    if (config.scan.diff_only && github.context.payload && github.context.payload.before) {
       try {
         // Checkout base commit to a temp location and scan for previous TODOs
         const baseCommit = github.context.payload.before;
-        await git.raw(["checkout", baseCommit]);
+        await git.raw(['checkout', baseCommit]);
         const baseFiles = filesToScan; // Use same file list for base scan
         const previousTodos = scanFilesForTodos(baseFiles, {
           tags: config.scan.tags,
           contextLines: config.scan.context_lines,
         });
         // Restore HEAD
-        await git.raw(["checkout", github.context.sha]);
+        await git.raw(['checkout', github.context.sha]);
         // Compare previous and current TODOs
-        const { detectRemovedTodos, closeIssuesForRemovedTodos } =
-          await import("./todoRemover.js");
+        const { detectRemovedTodos, closeIssuesForRemovedTodos } = await import('./todoRemover.js');
         removedTodos = detectRemovedTodos(previousTodos, todos);
         if (removedTodos.length > 0) {
-          issuesClosed = await closeIssuesForRemovedTodos(
-            octokit,
-            repo,
-            removedTodos,
-            { commit, author: "unknown", branch, timestamp },
-          );
+          issuesClosed = await closeIssuesForRemovedTodos(octokit, repo, removedTodos, {
+            commit,
+            author: 'unknown',
+            branch,
+            timestamp,
+          });
           core.info(`Closed ${issuesClosed} issue(s) for removed TODOs.`);
         }
       } catch (err) {
         if (err instanceof Error) {
           core.warning(`Failed to detect/close removed TODOs: ${err.message}`);
         } else {
-          core.warning("Failed to detect/close removed TODOs: Unknown error");
+          core.warning('Failed to detect/close removed TODOs: Unknown error');
         }
       }
     }
@@ -154,14 +146,12 @@ async function run() {
 
       // Compose issue config (labels, assignee, milestone)
       const issueLabels = (
-        (config.issues.labels as Record<string, string[]>)[
-          priority.toLowerCase()
-        ] || []
-      ).concat(["auto-generated"]);
+        (config.issues.labels as Record<string, string[]>)[priority.toLowerCase()] || []
+      ).concat(['auto-generated']);
       const assignees =
-        config.issues.assignee_strategy === "owner"
+        config.issues.assignee_strategy === 'owner'
           ? [repo.owner]
-          : config.issues.assignee_strategy === "author" && todo.author
+          : config.issues.assignee_strategy === 'author' && todo.author
             ? [todo.author]
             : [];
       const milestone = config.issues.milestone || undefined;
@@ -175,10 +165,10 @@ async function run() {
         {
           branch,
           commit,
-          author: todo.author || "unknown",
+          author: todo.author || 'unknown',
           timestamp,
         },
-        rationale,
+        rationale
       );
 
       // Deduplication key (hidden in issue body)
@@ -195,11 +185,11 @@ async function run() {
           todo,
           { labels: issueLabels, assignees, milestone },
           title,
-          issueBody,
+          issueBody
         );
         issuesCreated++;
         core.info(`Created issue for TODO: ${title}`);
-      } else if (existing.state === "closed") {
+      } else if (existing.state === 'closed') {
         // Reopen if TODO reappeared
         await reopenIssue(octokit, repo, existing.number);
         await updateIssue(octokit, repo, existing.number, title, issueBody, {
@@ -228,12 +218,12 @@ async function run() {
       `Created ${issuesCreated} issue(s).`,
       `Updated ${issuesUpdated} issue(s).`,
       `Closed ${issuesClosed} issue(s).`,
-    ].join(" ");
+    ].join(' ');
 
-    core.setOutput("issues_created", issuesCreated);
-    core.setOutput("issues_updated", issuesUpdated);
-    core.setOutput("issues_closed", issuesClosed);
-    core.setOutput("summary", summary);
+    core.setOutput('issues_created', issuesCreated);
+    core.setOutput('issues_updated', issuesUpdated);
+    core.setOutput('issues_closed', issuesClosed);
+    core.setOutput('summary', summary);
 
     core.endGroup();
   } catch (error) {
@@ -241,7 +231,7 @@ async function run() {
     if (error instanceof Error) {
       core.setFailed(error.message);
     } else {
-      core.setFailed("Unknown error");
+      core.setFailed('Unknown error');
     }
   }
 }

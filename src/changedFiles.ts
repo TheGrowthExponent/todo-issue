@@ -1,6 +1,6 @@
-import * as github from "@actions/github";
-import { simpleGit } from "simple-git";
-import { Repo } from "./types.js";
+import * as github from '@actions/github';
+import { simpleGit } from 'simple-git';
+import { Repo } from './types.js';
 
 /**
  * Get the list of changed files for the current push event.
@@ -14,7 +14,7 @@ export async function getChangedFiles(octokit: any = null): Promise<string[]> {
   const context = github.context;
 
   // Only works for push events
-  if (context.eventName === "push" && context.payload) {
+  if (context.eventName === 'push' && context.payload) {
     const before = context.payload.before;
     const after = context.payload.after;
     const repo: Repo = context.repo;
@@ -51,8 +51,7 @@ export async function getChangedFiles(octokit: any = null): Promise<string[]> {
       const files = new Set<string>();
       for (const commit of context.payload.commits) {
         if (commit.added) commit.added.forEach((f: string) => files.add(f));
-        if (commit.modified)
-          commit.modified.forEach((f: string) => files.add(f));
+        if (commit.modified) commit.modified.forEach((f: string) => files.add(f));
         if (commit.removed) commit.removed.forEach((f: string) => files.add(f));
       }
       return Array.from(files);
@@ -64,16 +63,16 @@ export async function getChangedFiles(octokit: any = null): Promise<string[]> {
   let diffFiles: string[] = [];
   try {
     // Get changed files between HEAD and HEAD^
-    const diff = await git.diff(["--name-only", "HEAD^", "HEAD"]);
+    const diff = await git.diff(['--name-only', 'HEAD^', 'HEAD']);
     diffFiles = diff
-      .split("\n")
+      .split('\n')
       .map((f: string) => f.trim())
       .filter(Boolean);
   } catch (err) {
     // If this fails (e.g., first commit), return all tracked files
-    const ls = await git.raw(["ls-files"]);
+    const ls = await git.raw(['ls-files']);
     diffFiles = ls
-      .split("\n")
+      .split('\n')
       .map((f: string) => f.trim())
       .filter(Boolean);
   }

@@ -1,7 +1,7 @@
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
-import { Todo, Repo, IssueConfig, IssueContext } from "./types.js";
+import { Todo, Repo, IssueConfig, IssueContext } from './types.js';
 
 /**
  * @fileoverview
@@ -12,7 +12,7 @@ import { Todo, Repo, IssueConfig, IssueContext } from "./types.js";
  * - Searching for existing issues by hidden key
  */
 
-import * as github from "@actions/github";
+import * as github from '@actions/github';
 
 /**
  * Generates a unique match key for a TODO (used for deduplication in issue body)
@@ -44,7 +44,7 @@ export function renderKeyComment(key: string): string {
 export async function findExistingIssue(
   octokit: any,
   repo: Repo,
-  key: string,
+  key: string
 ): Promise<any | null> {
   // Search both open and closed issues for the hidden key comment
   const query = `repo:${repo.owner}/${repo.repo} "${key}" in:body`;
@@ -74,7 +74,7 @@ export async function createIssue(
   todo: Todo,
   issueConfig: IssueConfig,
   title: string,
-  body: string,
+  body: string
 ): Promise<any> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
@@ -108,7 +108,7 @@ export async function updateIssue(
   issue_number: number,
   title: string,
   body: string,
-  issueConfig: IssueConfig,
+  issueConfig: IssueConfig
 ): Promise<any> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
@@ -139,7 +139,7 @@ export async function closeIssue(
   octokit: any,
   repo: Repo,
   issue_number: number,
-  closingComment: string,
+  closingComment: string
 ): Promise<void> {
   if (closingComment) {
     await octokit.rest.issues.createComment({
@@ -153,7 +153,7 @@ export async function closeIssue(
     owner: repo.owner,
     repo: repo.repo,
     issue_number,
-    state: "closed",
+    state: 'closed',
   });
 }
 
@@ -164,16 +164,12 @@ export async function closeIssue(
  * @param {number} issue_number
  * @returns {Promise<void>}
  */
-export async function reopenIssue(
-  octokit: any,
-  repo: Repo,
-  issue_number: number,
-): Promise<void> {
+export async function reopenIssue(octokit: any, repo: Repo, issue_number: number): Promise<void> {
   await octokit.rest.issues.update({
     owner: repo.owner,
     repo: repo.repo,
     issue_number,
-    state: "open",
+    state: 'open',
   });
 }
 
@@ -184,22 +180,15 @@ export async function reopenIssue(
  * @param {string} rationale - Priority rationale
  * @returns {string}
  */
-export function renderIssueBody(
-  todo: Todo,
-  context: IssueContext,
-  rationale: string,
-): string {
+export function renderIssueBody(todo: Todo, context: IssueContext, rationale: string): string {
   const keyComment = renderKeyComment(generateTodoKey(todo));
   const codeContext = [
     ...todo.contextBefore.map(
-      (l: string, i: number) =>
-        `// line ${todo.line - todo.contextBefore.length + i}: ${l}`,
+      (l: string, i: number) => `// line ${todo.line - todo.contextBefore.length + i}: ${l}`
     ),
     `// line ${todo.line}: ${todo.rawLine}`,
-    ...todo.contextAfter.map(
-      (l: string, i: number) => `// line ${todo.line + 1 + i}: ${l}`,
-    ),
-  ].join("\n");
+    ...todo.contextAfter.map((l: string, i: number) => `// line ${todo.line + 1 + i}: ${l}`),
+  ].join('\n');
 
   return `
 ## TODO Comment

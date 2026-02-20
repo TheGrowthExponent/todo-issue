@@ -8,10 +8,10 @@
  * Supports YAML config files for flexible customization.
  */
 
-import fs from "fs";
-import path from "path";
-import yaml from "js-yaml";
-import { IssueConfig } from "./types.js";
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+import { IssueConfig } from './types.js';
 
 /**
  * Configuration schema for TODO→ISSUE Action.
@@ -24,7 +24,7 @@ type Config = {
     diff_only: boolean;
   };
   issues: {
-    assignee_strategy: "owner" | "author" | "none";
+    assignee_strategy: 'owner' | 'author' | 'none';
     milestone: string;
     labels: {
       p1: string[];
@@ -42,19 +42,19 @@ type Config = {
 
 const DEFAULT_CONFIG: Config = {
   scan: {
-    tags: ["TODO", "FIXME", "HACK", "SECURITY", "BUG", "XXX"],
-    ignore: ["node_modules/", "dist/", "**/*.min.js", "**/*.lock"],
+    tags: ['TODO', 'FIXME', 'HACK', 'SECURITY', 'BUG', 'XXX'],
+    ignore: ['node_modules/', 'dist/', '**/*.min.js', '**/*.lock'],
     context_lines: 3,
     diff_only: true,
   },
   issues: {
-    assignee_strategy: "owner",
+    assignee_strategy: 'owner',
     milestone: 1,
     labels: {
-      p1: ["priority:critical", "security"],
-      p2: ["priority:high", "bug"],
-      p3: ["priority:medium", "tech-debt"],
-      p4: ["priority:low", "enhancement"],
+      p1: ['priority:critical', 'security'],
+      p2: ['priority:high', 'bug'],
+      p3: ['priority:medium', 'tech-debt'],
+      p4: ['priority:low', 'enhancement'],
     },
     require_owner_tag: false,
   },
@@ -69,19 +69,17 @@ const DEFAULT_CONFIG: Config = {
  * @param configPath - Path to the config file (default: .todo-issue.yml)
  * @returns The merged config object
  */
-export function loadConfig(configPath: string = ".todo-issue.yml"): Config {
+export function loadConfig(configPath: string = '.todo-issue.yml'): Config {
   let userConfig: Partial<Config> = {};
   const absPath = path.resolve(process.cwd(), configPath);
 
   if (fs.existsSync(absPath)) {
     try {
-      const fileContent = fs.readFileSync(absPath, "utf8");
+      const fileContent = fs.readFileSync(absPath, 'utf8');
       userConfig = (yaml.load(fileContent) as Partial<Config>) || {};
     } catch (err) {
       if (err instanceof Error) {
-        throw new Error(
-          `Failed to parse config file at ${configPath}: ${err.message}`,
-        );
+        throw new Error(`Failed to parse config file at ${configPath}: ${err.message}`);
       }
       throw err;
     }
@@ -95,14 +93,10 @@ export function loadConfig(configPath: string = ".todo-issue.yml"): Config {
  * Deep merge two objects (simple implementation for config)
  */
 function deepMerge<T>(target: T, source: Partial<T>): T {
-  if (typeof source !== "object" || source === null) return target;
+  if (typeof source !== 'object' || source === null) return target;
   const output = { ...target };
   for (const key of Object.keys(source) as (keyof T)[]) {
-    if (
-      source[key] &&
-      typeof source[key] === "object" &&
-      !Array.isArray(source[key])
-    ) {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
       output[key] = deepMerge((target[key] as any) || {}, source[key] as any);
     } else if (source[key] !== undefined) {
       output[key] = source[key] as T[typeof key];

@@ -1,8 +1,8 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: 'node',
     globals: true,
     server: {
       deps: {
@@ -12,14 +12,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@actions/github": new URL(
-        "./tests/__mocks__/@actions/github.js",
-        import.meta.url,
-      ).pathname,
-      "@actions/core": new URL(
-        "./tests/__mocks__/@actions/core.js",
-        import.meta.url,
-      ).pathname,
+      '@actions/github': new URL('./tests/__mocks__/@actions/github.js', import.meta.url).pathname,
+      '@actions/core': new URL('./tests/__mocks__/@actions/core.js', import.meta.url).pathname,
     },
   },
 });

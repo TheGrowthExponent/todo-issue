@@ -1,24 +1,27 @@
 ---
 name: Feature Request
 about: Suggest a new feature or enhancement for TODO→ISSUE
-title: "[Feature] <short description of your feature>"
+title: '[Feature] <short description of your feature>'
 labels: enhancement
 assignees: ''
-
 ---
 
 ## 🚀 Feature Request
 
 **Describe the feature you'd like**
+
 <!-- A clear and concise description of the feature or enhancement you are requesting. -->
 
 **Is your feature request related to a problem? Please describe.**
+
 <!-- If applicable, describe the problem or pain point your feature would address. -->
 
 **Describe alternatives you've considered**
+
 <!-- Have you considered any alternative solutions or workarounds? Please describe them. -->
 
 **Additional context**
+
 <!-- Add any other context, mockups, or screenshots about the feature request here. -->
 
 ---

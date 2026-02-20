@@ -1,10 +1,9 @@
 ---
 name: Bug Report
 about: Create a report to help us improve TODO→ISSUE by fixing a bug.
-title: "[Bug] <describe your bug>"
+title: '[Bug] <describe your bug>'
 labels: bug
 assignees: ''
-
 ---
 
 ## Description
@@ -17,14 +16,16 @@ A clear and concise description of what the bug is.
 
 ## Steps to Reproduce
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Expected behavior:**
+
 <!-- A clear and concise description of what you expected to happen. -->
 
 **Actual behavior:**
+
 <!-- What actually happened? -->
 
 ---

@@ -1,7 +1,7 @@
 // priorityClassifier.ts
 // Rule-based priority classifier for TODO comments
 
-import { Todo } from "./types.js";
+import { Todo } from './types.js';
 
 /**
  * Classifies the priority of a TODO comment based on tag, keywords, and optional manual override.
@@ -22,34 +22,34 @@ import { Todo } from "./types.js";
  * 4. Default: If no tag/keyword match, assign P4.
  */
 export function classifyPriority(todo: Todo): {
-  priority: "P1" | "P2" | "P3" | "P4";
+  priority: 'P1' | 'P2' | 'P3' | 'P4';
   rationale: string;
 } {
   // 1. Manual override always wins
   if (todo.priority && /^P[1-4]$/i.test(todo.priority)) {
     return {
-      priority: todo.priority.toUpperCase() as "P1" | "P2" | "P3" | "P4",
+      priority: todo.priority.toUpperCase() as 'P1' | 'P2' | 'P3' | 'P4',
       rationale: `Manual override: priority specified as ${todo.priority.toUpperCase()} in comment.`,
     };
   }
 
-  const tag = (todo.tag || "").toUpperCase();
-  const text = (todo.commentText || "").toLowerCase();
+  const tag = (todo.tag || '').toUpperCase();
+  const text = (todo.commentText || '').toLowerCase();
 
   // 2. Tag-based rules (highest precedence after manual)
-  if (tag === "SECURITY" || tag === "BUG") {
+  if (tag === 'SECURITY' || tag === 'BUG') {
     return {
-      priority: "P1",
+      priority: 'P1',
       rationale: `Tag-based: ${tag} tag triggers P1 CRITICAL.`,
     };
   }
-  if (tag === "FIXME") {
+  if (tag === 'FIXME') {
     return {
-      priority: "P2",
-      rationale: "Tag-based: FIXME tag triggers P2 HIGH.",
+      priority: 'P2',
+      rationale: 'Tag-based: FIXME tag triggers P2 HIGH.',
     };
   }
-  if (["TODO", "HACK", "XXX"].includes(tag)) {
+  if (['TODO', 'HACK', 'XXX'].includes(tag)) {
     // Will check keywords below for possible escalation/demotion
     // Otherwise, default to P3
   }
@@ -57,24 +57,24 @@ export function classifyPriority(todo: Todo): {
   // 3. Keyword-based rules
   // P1: Security/critical bug signals
   const p1Keywords = [
-    "vulnerability",
-    "injection",
-    "xss",
-    "auth bypass",
-    "cve",
-    "exploit",
-    "unsafe",
-    "credentials",
-    "token leak",
-    "rce",
-    "critical",
-    "security",
-    "leak",
+    'vulnerability',
+    'injection',
+    'xss',
+    'auth bypass',
+    'cve',
+    'exploit',
+    'unsafe',
+    'credentials',
+    'token leak',
+    'rce',
+    'critical',
+    'security',
+    'leak',
   ];
   for (const kw of p1Keywords) {
     if (text.includes(kw)) {
       return {
-        priority: "P1",
+        priority: 'P1',
         rationale: `Keyword-based: "${kw}" found in comment triggers P1 CRITICAL.`,
       };
     }
@@ -82,22 +82,22 @@ export function classifyPriority(todo: Todo): {
 
   // P2: High severity bug signals
   const p2Keywords = [
-    "broken",
-    "crash",
-    "data loss",
-    "race condition",
-    "memory leak",
-    "corruption",
-    "regression",
-    "null pointer",
-    "undefined behaviour",
-    "fail",
-    "failure",
+    'broken',
+    'crash',
+    'data loss',
+    'race condition',
+    'memory leak',
+    'corruption',
+    'regression',
+    'null pointer',
+    'undefined behaviour',
+    'fail',
+    'failure',
   ];
   for (const kw of p2Keywords) {
     if (text.includes(kw)) {
       return {
-        priority: "P2",
+        priority: 'P2',
         rationale: `Keyword-based: "${kw}" found in comment triggers P2 HIGH.`,
       };
     }
@@ -105,22 +105,22 @@ export function classifyPriority(todo: Todo): {
 
   // P3: Tech debt, refactor, workaround, etc.
   const p3Keywords = [
-    "refactor",
-    "cleanup",
-    "improve",
-    "optimise",
-    "optimize",
-    "technical debt",
-    "workaround",
-    "temporary",
-    "legacy",
-    "hack",
-    "debt",
+    'refactor',
+    'cleanup',
+    'improve',
+    'optimise',
+    'optimize',
+    'technical debt',
+    'workaround',
+    'temporary',
+    'legacy',
+    'hack',
+    'debt',
   ];
   for (const kw of p3Keywords) {
     if (text.includes(kw)) {
       return {
-        priority: "P3",
+        priority: 'P3',
         rationale: `Keyword-based: "${kw}" found in comment triggers P3 MEDIUM.`,
       };
     }
@@ -128,35 +128,35 @@ export function classifyPriority(todo: Todo): {
 
   // P4: Nice-to-have, future, enhancement, etc.
   const p4Keywords = [
-    "nice-to-have",
-    "future",
-    "someday",
-    "consider",
-    "idea",
-    "enhancement",
-    "v2",
-    "post-launch",
+    'nice-to-have',
+    'future',
+    'someday',
+    'consider',
+    'idea',
+    'enhancement',
+    'v2',
+    'post-launch',
   ];
   for (const kw of p4Keywords) {
     if (text.includes(kw)) {
       return {
-        priority: "P4",
+        priority: 'P4',
         rationale: `Keyword-based: "${kw}" found in comment triggers P4 LOW.`,
       };
     }
   }
 
   // 4. Default by tag
-  if (["TODO", "HACK", "XXX"].includes(tag)) {
+  if (['TODO', 'HACK', 'XXX'].includes(tag)) {
     return {
-      priority: "P3",
+      priority: 'P3',
       rationale: `Default: ${tag} tag triggers P3 MEDIUM.`,
     };
   }
 
   // 5. Fallback
   return {
-    priority: "P4",
-    rationale: "Default: No tag or keyword match, assigned P4 LOW.",
+    priority: 'P4',
+    rationale: 'Default: No tag or keyword match, assigned P4 LOW.',
   };
 }

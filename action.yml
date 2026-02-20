@@ -1,32 +1,32 @@
 # action.yml
-name: "TODO→ISSUE"
-description: "Automatically convert TODO, FIXME, HACK, SECURITY, BUG, and XXX comments into GitHub Issues with rich metadata and priority classification."
-author: "The Growth Exponent"
+name: 'TODO→ISSUE'
+description: 'Automatically convert TODO, FIXME, HACK, SECURITY, BUG, and XXX comments into GitHub Issues with rich metadata and priority classification.'
+author: 'The Growth Exponent'
 branding:
-  icon: "alert-circle"
-  color: "red"
+  icon: 'alert-circle'
+  color: 'red'
 
 inputs:
   github_token:
-    description: "GitHub token for authentication (use secrets.GITHUB_TOKEN)"
+    description: 'GitHub token for authentication (use secrets.GITHUB_TOKEN)'
     required: true
   config_path:
-    description: "Optional path to .todo-issue.yml config file"
+    description: 'Optional path to .todo-issue.yml config file'
     required: false
-    default: ".todo-issue.yml"
+    default: '.todo-issue.yml'
 
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: 'node20'
+  main: 'dist/index.js'
 
 outputs:
   issues_created:
-    description: "Number of new issues created"
+    description: 'Number of new issues created'
   issues_updated:
-    description: "Number of existing issues updated"
+    description: 'Number of existing issues updated'
   issues_closed:
-    description: "Number of issues closed due to TODO removal"
+    description: 'Number of issues closed due to TODO removal'
   summary:
-    description: "Summary of the scan and issue sync process"
+    description: 'Summary of the scan and issue sync process'
 
 # For more information, see: https://github.com/actions/runner

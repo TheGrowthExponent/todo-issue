@@ -35,16 +35,16 @@ Automatically convert TODO, FIXME, HACK, SECURITY, BUG, and XXX comments in your
 Create (or update) `.github/workflows/todo-issue.yml` in your repository:
 
 ```yaml
-name: "TODO→ISSUE: Automated TODO to GitHub Issue Pipeline"
+name: 'TODO→ISSUE: Automated TODO to GitHub Issue Pipeline'
 
 on:
   push:
     branches:
-      - "**"
+      - '**'
 
 jobs:
   todo_scan:
-    name: "Scan for TODOs and create GitHub Issues"
+    name: 'Scan for TODOs and create GitHub Issues'
     runs-on: ubuntu-latest
 
     steps:
@@ -54,7 +54,7 @@ jobs:
       - name: Set up Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -86,19 +86,19 @@ Place a `.todo-issue.yml` in your repo root to override defaults:
 
 ```yaml
 scan:
-  tags: ["TODO", "FIXME", "BUG"]
-  ignore: ["node_modules/", "dist/", "**/*.min.js"]
+  tags: ['TODO', 'FIXME', 'BUG']
+  ignore: ['node_modules/', 'dist/', '**/*.min.js']
   context_lines: 3
   diff_only: true
 
 issues:
-  assignee_strategy: "owner" # or "author" or "none"
-  milestone: "backlog"
+  assignee_strategy: 'owner' # or "author" or "none"
+  milestone: 'backlog'
   labels:
-    p1: ["priority:critical", "security"]
-    p2: ["priority:high", "bug"]
-    p3: ["priority:medium", "tech-debt"]
-    p4: ["priority:low", "enhancement"]
+    p1: ['priority:critical', 'security']
+    p2: ['priority:high', 'bug']
+    p3: ['priority:medium', 'tech-debt']
+    p4: ['priority:low', 'enhancement']
   require_owner_tag: false
 
 blocking:
@@ -173,6 +173,7 @@ Please follow the existing code style and add JSDoc/TSDoc comments for new or mo
 ### Issue Template
 
 When submitting an issue, please include:
+
 - A clear description of the problem or feature request.
 - Steps to reproduce (if applicable).
 - Example code or workflow YAML (if relevant).
