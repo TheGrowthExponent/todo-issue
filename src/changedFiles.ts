@@ -1,11 +1,3 @@
-// changedFiles.js
-// Utility to detect changed files for the current push event in a GitHub Action context.
-// Falls back to git diff if not running in Actions or event data is missing.
-
-import * as github from "@actions/github";
-import { simpleGit } from "simple-git";
-import { Repo } from "./types.js";
-
 /**
  * Get the list of changed files for the current push event.
  * - On GitHub Actions: uses the event payload (push event).

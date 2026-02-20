@@ -5,17 +5,27 @@ import { Todo } from "./types.js";
 
 /**
  * Classifies the priority of a TODO comment based on tag, keywords, and optional manual override.
- * @param {object} todo - The TODO object (from scanner)
- *   - tag: string (e.g. TODO, FIXME, SECURITY, BUG, HACK, XXX)
- *   - commentText: string (the comment body)
- *   - priority: string|null (manual override, e.g. P1, P2, etc.)
- * @returns {object} - { priority: 'P1'|'P2'|'P3'|'P4', rationale: string }
+ *
+ * Priority levels:
+ * - P1: Critical (e.g., SECURITY, BUG, or critical keywords)
+ * - P2: High (e.g., FIXME or high-severity bug keywords)
+ * - P3: Medium (e.g., TODO, HACK, XXX, or tech debt keywords)
+ * - P4: Low (e.g., nice-to-have, enhancement, or future work)
+ *
+ * @param {Todo} todo - The TODO object to classify.
+ * @returns {{ priority: "P1" | "P2" | "P3" | "P4"; rationale: string }} The assigned priority and rationale.
+ *
+ * Classification rules:
+ * 1. Manual override (priority in comment) always takes precedence.
+ * 2. Tag-based rules: SECURITY/BUG → P1, FIXME → P2, TODO/HACK/XXX → P3 (unless keywords escalate/demote).
+ * 3. Keyword-based rules: Escalate/demote based on presence of critical, high, medium, or low keywords.
+ * 4. Default: If no tag/keyword match, assign P4.
  */
 export function classifyPriority(todo: Todo): {
   priority: "P1" | "P2" | "P3" | "P4";
   rationale: string;
 } {
-  // Manual override always wins
+  // 1. Manual override always wins
   if (todo.priority && /^P[1-4]$/i.test(todo.priority)) {
     return {
       priority: todo.priority.toUpperCase() as "P1" | "P2" | "P3" | "P4",
@@ -26,7 +36,7 @@ export function classifyPriority(todo: Todo): {
   const tag = (todo.tag || "").toUpperCase();
   const text = (todo.commentText || "").toLowerCase();
 
-  // Tag-based rules (highest precedence)
+  // 2. Tag-based rules (highest precedence after manual)
   if (tag === "SECURITY" || tag === "BUG") {
     return {
       priority: "P1",
@@ -44,7 +54,7 @@ export function classifyPriority(todo: Todo): {
     // Otherwise, default to P3
   }
 
-  // Keyword-based rules
+  // 3. Keyword-based rules
   // P1: Security/critical bug signals
   const p1Keywords = [
     "vulnerability",
@@ -136,7 +146,7 @@ export function classifyPriority(todo: Todo): {
     }
   }
 
-  // Default by tag
+  // 4. Default by tag
   if (["TODO", "HACK", "XXX"].includes(tag)) {
     return {
       priority: "P3",
@@ -144,7 +154,7 @@ export function classifyPriority(todo: Todo): {
     };
   }
 
-  // Fallback
+  // 5. Fallback
   return {
     priority: "P4",
     rationale: "Default: No tag or keyword match, assigned P4 LOW.",

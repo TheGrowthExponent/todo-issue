@@ -1,6 +1,20 @@
-// TODO→ISSUE GitHub Action Entrypoint
-// -----------------------------------
-// Main pipeline: config → changed files → scan TODOs → classify → sync issues
+/**
+ * TODO→ISSUE GitHub Action Entrypoint
+ * -----------------------------------
+ * Main pipeline: config → changed files → scan TODOs → classify → sync issues
+ *
+ * This is the main entry point for the GitHub Action. It loads configuration,
+ * detects changed files (or all files), scans for TODO/FIXME/HACK/SECURITY/BUG/XXX
+ * comments, classifies their priority, and synchronizes them with GitHub Issues.
+ *
+ * Features:
+ * - Supports diff-only or full-repo scan
+ * - Ignores files based on config
+ * - Classifies TODOs by tag and keywords
+ * - Deduplicates issues using a hidden key
+ * - Updates, closes, or reopens issues as needed
+ * - Outputs summary statistics for the workflow
+ */
 
 import * as core from "@actions/core";
 import * as github from "@actions/github";
@@ -19,23 +33,35 @@ import {
   reopenIssue,
 } from "./issueSync.js";
 
+/**
+ * Main runner for the TODO→ISSUE GitHub Action.
+ * Loads configuration, detects files to scan, extracts TODOs, classifies them,
+ * and synchronizes with GitHub Issues (create, update, close, reopen).
+ *
+ * Outputs summary statistics for use in workflow steps.
+ */
 async function run() {
   try {
     core.startGroup("TODO→ISSUE Action: Initialization");
 
-    // Load inputs
+    // === 1. Load Action Inputs ===
+    /**
+     * github_token: Required. Used for GitHub API authentication.
+     * config_path: Optional. Path to .todo-issue.yml config file.
+     */
     const githubToken = core.getInput("github_token", { required: true });
     const configPath = core.getInput("config_path") || ".todo-issue.yml";
 
-    // Set up GitHub and Git clients
+    // === 2. Set up GitHub and Git clients ===
     const octokit = github.getOctokit(githubToken);
     const git = simpleGit();
 
-    // Load config (with defaults)
+    // === 3. Load configuration (with defaults) ===
     const config = loadConfig(configPath);
     core.info(`Loaded config from ${configPath}`);
 
-    // Detect changed files (diff-only or full scan)
+    // === 4. Detect files to scan ===
+    // If diff_only, only scan changed files; otherwise, scan all tracked files.
     let filesToScan = [];
     if (config.scan.diff_only) {
       filesToScan = await getChangedFiles(octokit);
@@ -52,13 +78,15 @@ async function run() {
       core.info(`Scanning all tracked files (${filesToScan.length})`);
     }
 
-    // Filter ignored paths
+    // === 5. Filter ignored paths ===
+    // Uses micromatch patterns from config.scan.ignore
     const micromatch = (await import("micromatch")).default;
     filesToScan = filesToScan.filter(
       (f: string) => !micromatch.isMatch(f, config.scan.ignore || []),
     );
 
-    // Scan files for TODOs (current state)
+    // === 6. Scan files for TODOs ===
+    // Extracts TODO/FIXME/HACK/SECURITY/BUG/XXX comments with metadata.
     const todos = scanFilesForTodos(filesToScan, {
       tags: config.scan.tags,
       contextLines: config.scan.context_lines,
@@ -66,19 +94,19 @@ async function run() {
 
     core.info(`Found ${todos.length} TODO(s) in scanned files.`);
 
-    // Prepare repo context
+    // === 7. Prepare repository context for issue metadata ===
     const repo = github.context.repo;
     const branch =
       github.context.ref?.split("/").slice(2).join("/") || "unknown";
     const commit = github.context.sha?.slice(0, 7) || "unknown";
     const timestamp = new Date().toISOString(); // Could use git log/blame for more accuracy
 
-    // Track stats
+    // === 8. Initialize statistics counters ===
     let issuesCreated = 0;
     let issuesUpdated = 0;
     let issuesClosed = 0;
 
-    // --- Detect removed TODOs and close corresponding issues ---
+    // === 9. Detect removed TODOs and close corresponding issues ===
     // Only possible if diff_only is true and we can get the base commit
     let removedTodos = [];
     if (
@@ -119,9 +147,9 @@ async function run() {
       }
     }
 
-    // Process each TODO
+    // === 10. Process each TODO: classify, deduplicate, and sync with GitHub Issues ===
     for (const todo of todos) {
-      // Classify priority
+      // Classify priority (P1–P4) and rationale
       const { priority, rationale } = classifyPriority(todo);
 
       // Compose issue config (labels, assignee, milestone)
@@ -141,7 +169,7 @@ async function run() {
       // Compose issue title
       const title = `[${todo.tag}][${priority}] ${todo.file}:${todo.line} — ${todo.commentText.slice(0, 60)}`;
 
-      // Compose issue body
+      // Compose issue body (includes metadata, code context, rationale, and deduplication key)
       const issueBody = renderIssueBody(
         todo,
         {
@@ -153,10 +181,10 @@ async function run() {
         rationale,
       );
 
-      // Deduplication key
+      // Deduplication key (hidden in issue body)
       const key = generateTodoKey(todo);
 
-      // Find existing issue (open or closed)
+      // Find existing issue (open or closed) by deduplication key
       const existing = await findExistingIssue(octokit, repo, key);
 
       if (!existing) {
@@ -193,7 +221,7 @@ async function run() {
       }
     }
 
-    // Output summary
+    // === 11. Output summary statistics for workflow consumption ===
     const summary = [
       `Scanned ${filesToScan.length} files.`,
       `Found ${todos.length} TODO(s).`,
@@ -209,6 +237,7 @@ async function run() {
 
     core.endGroup();
   } catch (error) {
+    // Fail the workflow if any error occurs
     if (error instanceof Error) {
       core.setFailed(error.message);
     } else {
@@ -217,4 +246,5 @@ async function run() {
   }
 }
 
+// Run the action
 run();

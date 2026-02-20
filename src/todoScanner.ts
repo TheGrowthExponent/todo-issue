@@ -1,35 +1,38 @@
-// todoScanner.js
+// todoScanner.ts
 // Scans files for TODO/FIXME/HACK/SECURITY/BUG/XXX comments and extracts metadata
 
 import fs from "fs";
 import path from "path";
-
-/**
- * Supported comment tags (can be customized via config)
- * @example ['TODO', 'FIXME', 'HACK', 'SECURITY', 'BUG', 'XXX']
- */
 import { Todo } from "./types.js";
 
+/**
+ * Builds a regular expression to match supported comment tags in various comment styles.
+ * Supports single-line (//, #, --, ;, %) and multi-line (/*, """, ''') comment formats.
+ *
+ * @param tags - Array of tags to match (e.g., ['TODO', 'FIXME'])
+ * @returns RegExp to match tagged comments
+ */
 function buildTagRegex(tags: string[]): RegExp {
-  // Escape tags for regex
   const tagPattern = tags
-    .map((t: string) => t.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&"))
+    .map((t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|");
-  // Match single-line and multi-line comment styles
-  // Supports: // TODO, # TODO, -- TODO, /* TODO */, """ TODO """, ''' TODO '''
+  // Matches both single-line and multi-line comment styles
   return new RegExp(
     [
-      // Single-line: // TODO, # TODO, -- TODO
+      // Single-line: // TODO, # TODO, -- TODO, etc.
       `(?:\\/\\/|#|--|;|%)\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*(.*)`,
       // Multi-line: /* TODO ... */, """ TODO ... """, ''' TODO ... '''
-      `(?:\\/\\*+|"""|''')\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*([\\s\\S]*?)\\*+\\/|"""|'''`,
+      `(?:\\/\\*+|\"\"\"|''')\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*([\\s\\S]*?)\\*+\\/|\"\"\"|'''`,
     ].join("|"),
     "gi",
   );
 }
 
 /**
- * Reads a file and returns its lines as an array
+ * Reads a file and returns its lines as an array of strings.
+ *
+ * @param filePath - Path to the file to read
+ * @returns Array of lines from the file
  */
 function readFileLines(filePath: string): string[] {
   const content = fs.readFileSync(filePath, "utf8");
@@ -37,12 +40,13 @@ function readFileLines(filePath: string): string[] {
 }
 
 /**
- * Extracts TODO comments and metadata from a file
- * @param {string} filePath - Path to the file
- * @param {object} options
- *   - tags: array of tags to match
- *   - contextLines: number of lines before/after to include as context
- * @returns {Array} - Array of TODO objects with metadata
+ * Extracts TODO-style comments and associated metadata from a single file.
+ *
+ * @param filePath - Path to the file to scan
+ * @param options - Options object:
+ *   - tags: Array of tags to match (e.g., ['TODO', 'FIXME'])
+ *   - contextLines: Number of lines before/after the TODO to include as context (default: 3)
+ * @returns Array of Todo objects with extracted metadata
  */
 export function scanFileForTodos(
   filePath: string,
@@ -63,7 +67,7 @@ export function scanFileForTodos(
       const meta = match[2] || match[5] || "";
       const commentText = (match[3] || match[6] || "").trim();
 
-      // Extract author/priority from meta if present: e.g. (author), (priority:p2)
+      // Extract author, priority, and issue reference from meta if present
       let author: string | null = null,
         priority: string | null = null,
         issueRef: string | null = null;
@@ -79,7 +83,7 @@ export function scanFileForTodos(
         if (issueMatch) issueRef = issueMatch[1];
       }
 
-      // Context lines
+      // Gather context lines before and after the TODO
       const contextBefore: string[] = [];
       const contextAfter: string[] = [];
       for (let b = Math.max(0, i - contextLines); b < i; b++) {
@@ -112,10 +116,11 @@ export function scanFileForTodos(
 }
 
 /**
- * Scans multiple files for TODOs
- * @param {string[]} filePaths
- * @param {object} options (see scanFileForTodos)
- * @returns {Array} - Array of TODO objects from all files
+ * Scans multiple files for TODO-style comments.
+ *
+ * @param filePaths - Array of file paths to scan
+ * @param options - Options object (see scanFileForTodos)
+ * @returns Array of Todo objects from all scanned files
  */
 export function scanFilesForTodos(
   filePaths: string[],
@@ -130,7 +135,7 @@ export function scanFilesForTodos(
         allTodos.push(...todos);
       }
     } catch (err) {
-      // Ignore unreadable files
+      // Ignore unreadable files (e.g., permissions, binary, etc.)
       continue;
     }
   }
