@@ -103,7 +103,17 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       output[key] = deepMerge((target[key] as any) || {}, value as any);
     } else if (value !== undefined) {
-      output[key] = value as T[typeof key];
+      // Type guard to reduce unsafe any warning
+      if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        Array.isArray(value)
+      ) {
+        output[key] = value as T[typeof key];
+      } else if (typeof value === 'object' && value !== null) {
+        output[key] = deepMerge((target[key] as any) || {}, value as any);
+      }
     }
   }
   return output;

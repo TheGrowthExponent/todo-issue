@@ -41,9 +41,16 @@ export async function getChangedFiles(
           per_page: 100,
           page,
         });
-        if (resp.data && resp.data.files) {
+        if (resp && typeof resp === 'object' && resp.data && Array.isArray(resp.data.files)) {
           for (const file of resp.data.files) {
-            if (file.filename) changed.add(file.filename);
+            if (
+              file &&
+              typeof file === 'object' &&
+              'filename' in file &&
+              typeof file.filename === 'string'
+            ) {
+              changed.add(file.filename);
+            }
           }
           hasMore = resp.data.files.length === 100;
           page += 1;

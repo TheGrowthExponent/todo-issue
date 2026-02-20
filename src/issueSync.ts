@@ -52,14 +52,16 @@ export async function findExistingIssue(
   });
   if (
     results &&
+    typeof results === 'object' &&
     results.data &&
+    typeof results.data === 'object' &&
     Array.isArray(results.data.items) &&
     results.data.items.length > 0
   ) {
     const item = results.data.items[0];
-    return typeof item === 'object' && item !== null && 'number' in item
-      ? (item as { number: number; state?: string })
-      : null;
+    if (typeof item === 'object' && item !== null && 'number' in item) {
+      return item as { number: number; state?: string };
+    }
   }
   return null;
 }
@@ -95,9 +97,16 @@ export async function createIssue(
     assignees,
     milestone,
   });
-  return resp && resp.data && typeof resp.data === 'object' && 'number' in resp.data
-    ? (resp.data as { number: number })
-    : { number: -1 };
+  if (
+    resp &&
+    typeof resp === 'object' &&
+    resp.data &&
+    typeof resp.data === 'object' &&
+    'number' in resp.data
+  ) {
+    return resp.data as { number: number };
+  }
+  return { number: -1 };
 }
 
 /**
@@ -132,9 +141,16 @@ export async function updateIssue(
     assignees,
     milestone,
   });
-  return resp && resp.data && typeof resp.data === 'object' && 'number' in resp.data
-    ? (resp.data as { number: number })
-    : { number: -1 };
+  if (
+    resp &&
+    typeof resp === 'object' &&
+    resp.data &&
+    typeof resp.data === 'object' &&
+    'number' in resp.data
+  ) {
+    return resp.data as { number: number };
+  }
+  return { number: -1 };
 }
 
 /**
@@ -159,19 +175,23 @@ export async function closeIssue(
   closingComment: string
 ): Promise<void> {
   if (closingComment) {
-    await octokit.rest.issues.createComment({
+    await octokit.rest.issues
+      .createComment({
+        owner: repo.owner,
+        repo: repo.repo,
+        issue_number,
+        body: closingComment,
+      })
+      .catch(() => {});
+  }
+  await octokit.rest.issues
+    .update({
       owner: repo.owner,
       repo: repo.repo,
       issue_number,
-      body: closingComment,
-    });
-  }
-  await octokit.rest.issues.update({
-    owner: repo.owner,
-    repo: repo.repo,
-    issue_number,
-    state: 'closed',
-  });
+      state: 'closed',
+    })
+    .catch(() => {});
 }
 
 /**
@@ -186,12 +206,14 @@ export async function reopenIssue(
   repo: Repo,
   issue_number: number
 ): Promise<void> {
-  await octokit.rest.issues.update({
-    owner: repo.owner,
-    repo: repo.repo,
-    issue_number,
-    state: 'open',
-  });
+  await octokit.rest.issues
+    .update({
+      owner: repo.owner,
+      repo: repo.repo,
+      issue_number,
+      state: 'open',
+    })
+    .catch(() => {});
 }
 
 /**

@@ -188,37 +188,23 @@ async function run() {
         );
         issuesCreated++;
         core.info(`Created issue for TODO: ${title}`);
-      } else if ((existing as { state?: string }).state === 'closed') {
+      } else if (typeof existing === 'object' && existing !== null && existing.state === 'closed') {
         // Reopen if TODO reappeared
-        await reopenIssue(octokit, repo, (existing as { number: number }).number);
-        await updateIssue(
-          octokit,
-          repo,
-          (existing as { number: number }).number,
-          title,
-          issueBody,
-          {
-            labels: issueLabels,
-            assignees,
-            milestone,
-          }
-        );
+        await reopenIssue(octokit, repo, existing.number);
+        await updateIssue(octokit, repo, existing.number, title, issueBody, {
+          labels: issueLabels,
+          assignees,
+          milestone,
+        });
         issuesUpdated++;
         core.info(`Reopened and updated issue for TODO: ${title}`);
-      } else {
+      } else if (typeof existing === 'object' && existing !== null && 'number' in existing) {
         // Update if line number or context changed
-        await updateIssue(
-          octokit,
-          repo,
-          (existing as { number: number }).number,
-          title,
-          issueBody,
-          {
-            labels: issueLabels,
-            assignees,
-            milestone,
-          }
-        );
+        await updateIssue(octokit, repo, existing.number, title, issueBody, {
+          labels: issueLabels,
+          assignees,
+          milestone,
+        });
         issuesUpdated++;
         core.info(`Updated issue for TODO: ${title}`);
       }
@@ -250,4 +236,4 @@ async function run() {
 }
 
 // Run the action
-run();
+void run();
