@@ -49,7 +49,7 @@ const DEFAULT_CONFIG: Config = {
   },
   issues: {
     assignee_strategy: "owner",
-    milestone: "backlog",
+    milestone: 1,
     labels: {
       p1: ["priority:critical", "security"],
       p2: ["priority:high", "bug"],
