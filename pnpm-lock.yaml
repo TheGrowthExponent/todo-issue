@@ -17,6 +17,9 @@ importers:
       '@octokit/rest':
         specifier: ^20.0.0
         version: 20.1.2
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       simple-git:
         specifier: ^3.20.0
         version: 3.31.1
