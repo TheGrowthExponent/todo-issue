@@ -61,7 +61,8 @@ async function run() {
     // Check if issues are enabled
     const repoInfo = await octokit.rest.repos.get({ owner, repo: repoName });
     if (!repoInfo.data.has_issues) {
-      const msg = `❌ Issues are not enabled for this repository.\nTo enable issues: Go to GitHub → Settings → Features → Check 'Issues'.`;
+      const msg =
+        '❌ Issues are not enabled for this repository.\nTo enable issues: Go to GitHub → Settings → Features → Check `Issues`.';
       core.setOutput('setup_error', msg);
       core.setFailed(msg);
       return;
@@ -70,7 +71,8 @@ async function run() {
     // Check if milestones exist
     const milestones = await octokit.rest.issues.listMilestones({ owner, repo: repoName });
     if (!milestones.data || milestones.data.length === 0) {
-      const msg = `❌ No milestones found in this repository.\nTo create a milestone: Go to GitHub → Issues → Milestones → New milestone.`;
+      const msg =
+        '❌ No milestones found in this repository.\nTo create a milestone: Go to GitHub → Issues → Milestones → New milestone.';
       core.setOutput('setup_error', msg);
       core.setFailed(msg);
       return;
