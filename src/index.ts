@@ -200,7 +200,7 @@ async function run() {
       const existing = await findExistingIssue(octokit, repo, key);
 
       if (!existing) {
-        // Create new issue
+        // No issue found for this hash, create a new one
         await createIssue(
           octokit,
           repo,
@@ -211,18 +211,8 @@ async function run() {
         );
         issuesCreated++;
         core.info(`Created issue for TODO: ${title}`);
-      } else if (typeof existing === 'object' && existing !== null && existing.state === 'closed') {
-        // Reopen if TODO reappeared
-        await reopenIssue(octokit, repo, existing.number);
-        await updateIssue(octokit, repo, existing.number, title, issueBody, {
-          labels: issueLabels,
-          assignees,
-          milestone,
-        });
-        issuesUpdated++;
-        core.info(`Reopened and updated issue for TODO: ${title}`);
-      } else if (typeof existing === 'object' && existing !== null && 'number' in existing) {
-        // Update if line number or context changed
+      } else if (typeof existing === 'object' && existing !== null && existing.state !== 'closed') {
+        // Issue is open, update it if needed
         await updateIssue(octokit, repo, existing.number, title, issueBody, {
           labels: issueLabels,
           assignees,
@@ -231,6 +221,7 @@ async function run() {
         issuesUpdated++;
         core.info(`Updated issue for TODO: ${title}`);
       }
+      // If existing is closed, do nothing (do not reopen or update)
     }
 
     // === 11. Output summary statistics for workflow consumption ===
