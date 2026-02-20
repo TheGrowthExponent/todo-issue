@@ -1,6 +1,6 @@
 {
   "name": "todo-issue",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Automated TODO-to-GitHub-Issue Pipeline — GitHub Action to convert TODO comments into tracked issues with metadata and priority classification.",
   "main": "dist/index.js",
   "type": "module",
@@ -12,7 +12,9 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "bundle": "ncc build src/index.ts -o dist",
+    "release": "npm run bundle && git add dist && git commit -m 'Bundle action for release'"
   },
   "keywords": [
     "github-action",

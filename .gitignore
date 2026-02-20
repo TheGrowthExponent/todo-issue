@@ -97,5 +97,5 @@ public
 # Windows system files
 Thumbs.db
 
-# Dist output
-dist/
+# Dist output - required for production builds
+!dist/
