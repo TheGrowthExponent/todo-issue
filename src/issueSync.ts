@@ -12,8 +12,6 @@ import { Todo, Repo, IssueConfig, IssueContext } from './types.js';
  * - Searching for existing issues by hidden key
  */
 
-import * as github from '@actions/github';
-
 /**
  * Generates a unique match key for a TODO (used for deduplication in issue body)
  * @param {Todo} todo

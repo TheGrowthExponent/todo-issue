@@ -11,7 +11,6 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { IssueConfig } from './types.js';
 
 /**
  * Configuration schema for TODO→ISSUE Action.

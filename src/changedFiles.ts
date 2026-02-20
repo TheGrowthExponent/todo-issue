@@ -76,7 +76,7 @@ export async function getChangedFiles(
       .split('\n')
       .map((f: string) => f.trim())
       .filter(Boolean);
-  } catch (err) {
+  } catch {
     // If this fails (e.g., first commit), return all tracked files
     const ls = await git.raw(['ls-files']);
     diffFiles = ls

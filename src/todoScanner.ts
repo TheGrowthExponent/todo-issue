@@ -2,7 +2,6 @@
 // Scans files for TODO/FIXME/HACK/SECURITY/BUG/XXX comments and extracts metadata
 
 import fs from 'fs';
-import path from 'path';
 import { Todo } from './types.js';
 
 /**
@@ -128,7 +127,7 @@ export function scanFilesForTodos(
         const todos = scanFileForTodos(filePath, options);
         allTodos.push(...todos);
       }
-    } catch (err) {
+    } catch {
       // Ignore unreadable files (e.g., permissions, binary, etc.)
       continue;
     }

@@ -29,7 +29,6 @@ import {
   findExistingIssue,
   createIssue,
   updateIssue,
-  closeIssue,
   reopenIssue,
 } from './issueSync.js';
 
