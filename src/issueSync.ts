@@ -1,6 +1,8 @@
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
+import { Todo, Repo, IssueConfig, IssueContext } from "./types.js";
+
 /**
  * @fileoverview
  * Functions for synchronizing TODO comments with GitHub Issues:
@@ -17,6 +19,11 @@ import * as github from "@actions/github";
  * @param {Todo} todo
  * @returns {string}
  */
+export function generateTodoKey(todo: Todo): string {
+  // Use file path, original line, and (optionally) commit SHA for uniqueness
+  // Format: todo-issue-key:<file>:<line>
+  return `todo-issue-key:${todo.file}:${todo.line}`;
+}
 
 /**
  * Embeds the match key as a hidden HTML comment in the issue body

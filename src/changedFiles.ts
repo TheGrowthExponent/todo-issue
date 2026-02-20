@@ -1,3 +1,7 @@
+import * as github from "@actions/github";
+import { simpleGit } from "simple-git";
+import { Repo } from "./types.js";
+
 /**
  * Get the list of changed files for the current push event.
  * - On GitHub Actions: uses the event payload (push event).

@@ -1,5 +1,6 @@
 // todoRemover.ts
 // Detects removed TODOs and closes corresponding GitHub Issues
+import { generateTodoKey, findExistingIssue, closeIssue } from "./issueSync.js";
 
 /**
  * @fileoverview
@@ -7,7 +8,6 @@
  * Used as part of the TODO→ISSUE GitHub Action pipeline to ensure issues are closed when TODOs are deleted from code.
  */
 
-import { generateTodoKey, findExistingIssue, closeIssue } from "./issueSync.js";
 import { Todo, Repo, IssueContext } from "./types.js";
 
 /**
