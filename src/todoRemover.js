@@ -1,8 +1,7 @@
-todo-issue/src/todoRemover.js
 // todoRemover.js
 // Detects removed TODOs and closes corresponding GitHub Issues
 
-import { generateTodoKey, findExistingIssue, closeIssue } from './issueSync.js';
+import { generateTodoKey, findExistingIssue, closeIssue } from "./issueSync.js";
 
 /**
  * Detects which TODOs have been removed by comparing previous and current TODO lists.
@@ -12,7 +11,9 @@ import { generateTodoKey, findExistingIssue, closeIssue } from './issueSync.js';
  */
 export function detectRemovedTodos(previousTodos, currentTodos) {
   const currentKeys = new Set(currentTodos.map(generateTodoKey));
-  return previousTodos.filter(todo => !currentKeys.has(generateTodoKey(todo)));
+  return previousTodos.filter(
+    (todo) => !currentKeys.has(generateTodoKey(todo)),
+  );
 }
 
 /**
@@ -23,12 +24,17 @@ export function detectRemovedTodos(previousTodos, currentTodos) {
  * @param {object} context - { commit, author, branch }
  * @returns {Promise<number>} - Number of issues closed
  */
-export async function closeIssuesForRemovedTodos(octokit, repo, removedTodos, context) {
+export async function closeIssuesForRemovedTodos(
+  octokit,
+  repo,
+  removedTodos,
+  context,
+) {
   let closedCount = 0;
   for (const todo of removedTodos) {
     const key = generateTodoKey(todo);
     const existing = await findExistingIssue(octokit, repo, key);
-    if (existing && existing.state === 'open') {
+    if (existing && existing.state === "open") {
       const closingComment = `Resolved in commit ${context.commit} by ${context.author} on branch ${context.branch}.`;
       await closeIssue(octokit, repo, existing.number, closingComment);
       closedCount++;

@@ -1,9 +1,8 @@
-todo-issue/src/todoScanner.js
 // todoScanner.js
 // Scans files for TODO/FIXME/HACK/SECURITY/BUG/XXX comments and extracts metadata
 
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 /**
  * Supported comment tags (can be customized via config)
@@ -11,7 +10,9 @@ import path from 'path';
  */
 function buildTagRegex(tags) {
   // Escape tags for regex
-  const tagPattern = tags.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const tagPattern = tags
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
   // Match single-line and multi-line comment styles
   // Supports: // TODO, # TODO, -- TODO, /* TODO */, """ TODO """, ''' TODO '''
   return new RegExp(
@@ -19,9 +20,9 @@ function buildTagRegex(tags) {
       // Single-line: // TODO, # TODO, -- TODO
       `(?:\\/\\/|#|--|;|%)\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*(.*)`,
       // Multi-line: /* TODO ... */, """ TODO ... """, ''' TODO ... '''
-      `(?:\\/\\*+|"""|''')\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*([\\s\\S]*?)\\*+\\/|"""|'''`
-    ].join('|'),
-    'gi'
+      `(?:\\/\\*+|"""|''')\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*([\\s\\S]*?)\\*+\\/|"""|'''`,
+    ].join("|"),
+    "gi",
   );
 }
 
@@ -29,7 +30,7 @@ function buildTagRegex(tags) {
  * Reads a file and returns its lines as an array
  */
 function readFileLines(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, "utf8");
   return content.split(/\r?\n/);
 }
 
@@ -54,14 +55,18 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
     while ((match = tagRegex.exec(line))) {
       // Determine which capturing group matched (single-line or multi-line)
       const tag = match[1] || match[4];
-      const meta = match[2] || match[5] || '';
-      const commentText = (match[3] || match[6] || '').trim();
+      const meta = match[2] || match[5] || "";
+      const commentText = (match[3] || match[6] || "").trim();
 
       // Extract author/priority from meta if present: e.g. (author), (priority:p2)
-      let author = null, priority = null, issueRef = null;
+      let author = null,
+        priority = null,
+        issueRef = null;
       if (meta) {
         // e.g. (author), (priority:p2), (issue:#123)
-        const authorMatch = meta.match(/([a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+)/);
+        const authorMatch = meta.match(
+          /([a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+)/,
+        );
         if (authorMatch) author = authorMatch[1];
         const priorityMatch = meta.match(/priority\s*:\s*(p[1-4])/i);
         if (priorityMatch) priority = priorityMatch[1].toUpperCase();
@@ -75,7 +80,11 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
       for (let b = Math.max(0, i - contextLines); b < i; b++) {
         contextBefore.push(lines[b]);
       }
-      for (let a = i + 1; a <= Math.min(lines.length - 1, i + contextLines); a++) {
+      for (
+        let a = i + 1;
+        a <= Math.min(lines.length - 1, i + contextLines);
+        a++
+      ) {
         contextAfter.push(lines[a]);
       }
 
@@ -89,7 +98,7 @@ export function scanFileForTodos(filePath, { tags, contextLines = 3 }) {
         commentText,
         contextBefore,
         contextAfter,
-        rawLine: line
+        rawLine: line,
       });
     }
   }

@@ -1,8 +1,7 @@
-todo-issue/src/issueSync.js
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
-import github from '@actions/github';
+import github from "@actions/github";
 
 /**
  * Generates a unique match key for a TODO (used for deduplication in issue body)
@@ -54,7 +53,14 @@ export async function findExistingIssue(octokit, repo, key) {
  * @param {string} title - Issue title
  * @returns {Promise<object>} - Created issue
  */
-export async function createIssue(octokit, repo, todo, issueConfig, title, body) {
+export async function createIssue(
+  octokit,
+  repo,
+  todo,
+  issueConfig,
+  title,
+  body,
+) {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -81,7 +87,14 @@ export async function createIssue(octokit, repo, todo, issueConfig, title, body)
  * @param {object} issueConfig
  * @returns {Promise<object>} - Updated issue
  */
-export async function updateIssue(octokit, repo, issue_number, title, body, issueConfig) {
+export async function updateIssue(
+  octokit,
+  repo,
+  issue_number,
+  title,
+  body,
+  issueConfig,
+) {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -120,7 +133,7 @@ export async function closeIssue(octokit, repo, issue_number, closingComment) {
     owner: repo.owner,
     repo: repo.repo,
     issue_number,
-    state: 'closed',
+    state: "closed",
   });
 }
 
@@ -136,7 +149,7 @@ export async function reopenIssue(octokit, repo, issue_number) {
     owner: repo.owner,
     repo: repo.repo,
     issue_number,
-    state: 'open',
+    state: "open",
   });
 }
 
@@ -150,10 +163,12 @@ export async function reopenIssue(octokit, repo, issue_number) {
 export function renderIssueBody(todo, context, rationale) {
   const keyComment = renderKeyComment(generateTodoKey(todo));
   const codeContext = [
-    ...todo.contextBefore.map((l, i) => `// line ${todo.line - todo.contextBefore.length + i}: ${l}`),
+    ...todo.contextBefore.map(
+      (l, i) => `// line ${todo.line - todo.contextBefore.length + i}: ${l}`,
+    ),
     `// line ${todo.line}: ${todo.rawLine}`,
     ...todo.contextAfter.map((l, i) => `// line ${todo.line + 1 + i}: ${l}`),
-  ].join('\n');
+  ].join("\n");
 
   return `
 ## TODO Comment

@@ -1,4 +1,3 @@
-todo-issue/action.yml
 # action.yml
 name: "TODO→ISSUE"
 description: "Automatically convert TODO, FIXME, HACK, SECURITY, BUG, and XXX comments into GitHub Issues with rich metadata and priority classification."

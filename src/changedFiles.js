@@ -1,10 +1,9 @@
-todo-issue/src/changedFiles.js
 // changedFiles.js
 // Utility to detect changed files for the current push event in a GitHub Action context.
 // Falls back to git diff if not running in Actions or event data is missing.
 
-import github from '@actions/github';
-import simpleGit from 'simple-git';
+import github from "@actions/github";
+import simpleGit from "simple-git";
 
 /**
  * Get the list of changed files for the current push event.
@@ -18,7 +17,7 @@ export async function getChangedFiles(octokit = null) {
   const context = github.context;
 
   // Only works for push events
-  if (context.eventName === 'push' && context.payload) {
+  if (context.eventName === "push" && context.payload) {
     const before = context.payload.before;
     const after = context.payload.after;
     const repo = context.repo;
@@ -54,9 +53,9 @@ export async function getChangedFiles(octokit = null) {
     if (context.payload.commits && Array.isArray(context.payload.commits)) {
       const files = new Set();
       for (const commit of context.payload.commits) {
-        if (commit.added) commit.added.forEach(f => files.add(f));
-        if (commit.modified) commit.modified.forEach(f => files.add(f));
-        if (commit.removed) commit.removed.forEach(f => files.add(f));
+        if (commit.added) commit.added.forEach((f) => files.add(f));
+        if (commit.modified) commit.modified.forEach((f) => files.add(f));
+        if (commit.removed) commit.removed.forEach((f) => files.add(f));
       }
       return Array.from(files);
     }
@@ -67,17 +66,17 @@ export async function getChangedFiles(octokit = null) {
   let diffFiles = [];
   try {
     // Get changed files between HEAD and HEAD^
-    const diff = await git.diff(['--name-only', 'HEAD^', 'HEAD']);
+    const diff = await git.diff(["--name-only", "HEAD^", "HEAD"]);
     diffFiles = diff
-      .split('\n')
-      .map(f => f.trim())
+      .split("\n")
+      .map((f) => f.trim())
       .filter(Boolean);
   } catch (err) {
     // If this fails (e.g., first commit), return all tracked files
     const ls = await git.lsFiles();
     diffFiles = ls
-      .split('\n')
-      .map(f => f.trim())
+      .split("\n")
+      .map((f) => f.trim())
       .filter(Boolean);
   }
   return diffFiles;
