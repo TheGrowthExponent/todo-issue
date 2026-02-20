@@ -28,5 +28,7 @@ outputs:
     description: 'Number of issues closed due to TODO removal'
   summary:
     description: 'Summary of the scan and issue sync process'
+  setup_error:
+    description: 'Error or instructions if repository is not properly configured (issues/milestones)'
 
 # For more information, see: https://github.com/actions/runner
