@@ -49,7 +49,7 @@ Use [semantic versioning](https://semver.org/) for release tags:
 ```sh
 git checkout main
 pnpm build
-git add dist/
+git add -f dist/
 git commit -m "Build for release v1.0.0"
 git tag v1.0.0
 git push origin v1.0.0
