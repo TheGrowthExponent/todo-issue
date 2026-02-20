@@ -1,6 +1,8 @@
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
+import { Octokit } from '@octokit/rest';
+
 import { Todo, Repo, IssueConfig, IssueContext } from './types.js';
 
 /**
@@ -39,8 +41,16 @@ export function renderKeyComment(key: string): string {
  * @param {string} key - Unique TODO key
  * @returns {Promise<object|null>} - Issue object or null if not found
  */
+/*
+  ESLint exemption for explicit 'any' on octokit:
+  The octokit instance is extended with plugins and custom properties (e.g., paginate),
+  so strict typing causes incompatibility with function signatures. Using 'any' ensures
+  compatibility with all plugin-extended octokit instances. Do not remove this exemption
+  unless all usages and plugin extensions are strictly typed and compatible.
+*/
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function findExistingIssue(
-  octokit: { rest: { search: { issuesAndPullRequests: (params: object) => Promise<any> } } },
+  octokit: any,
   repo: Repo,
   key: string
 ): Promise<{ number: number; state?: string } | null> {
@@ -77,7 +87,7 @@ export async function findExistingIssue(
  * @returns {Promise<object>} - Created issue
  */
 export async function createIssue(
-  octokit: { rest: { issues: { create: (params: object) => Promise<any> } } },
+  octokit: any,
   repo: Repo,
   todo: Todo,
   issueConfig: IssueConfig,
@@ -120,7 +130,7 @@ export async function createIssue(
  * @returns {Promise<object>} - Updated issue
  */
 export async function updateIssue(
-  octokit: { rest: { issues: { update: (params: object) => Promise<any> } } },
+  octokit: any,
   repo: Repo,
   issue_number: number,
   title: string,
@@ -162,14 +172,7 @@ export async function updateIssue(
  * @returns {Promise<void>}
  */
 export async function closeIssue(
-  octokit: {
-    rest: {
-      issues: {
-        createComment: (params: object) => Promise<any>;
-        update: (params: object) => Promise<any>;
-      };
-    };
-  },
+  octokit: any,
   repo: Repo,
   issue_number: number,
   closingComment: string
@@ -201,11 +204,7 @@ export async function closeIssue(
  * @param {number} issue_number
  * @returns {Promise<void>}
  */
-export async function reopenIssue(
-  octokit: { rest: { issues: { update: (params: object) => Promise<any> } } },
-  repo: Repo,
-  issue_number: number
-): Promise<void> {
+export async function reopenIssue(octokit: any, repo: Repo, issue_number: number): Promise<void> {
   await octokit.rest.issues
     .update({
       owner: repo.owner,
@@ -215,6 +214,7 @@ export async function reopenIssue(
     })
     .catch(() => {});
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
  * Renders the GitHub Issue body for a TODO, including metadata and key comment
