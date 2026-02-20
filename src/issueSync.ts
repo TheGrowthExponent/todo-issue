@@ -19,10 +19,15 @@ import { Todo, Repo, IssueConfig, IssueContext } from './types.js';
  * @param {Todo} todo
  * @returns {string}
  */
+import crypto from 'crypto';
+
 export function generateTodoKey(todo: Todo): string {
-  // Use file path, original line, and (optionally) commit SHA for uniqueness
-  // Format: todo-issue-key:<file>:<line>
-  return `todo-issue-key:${todo.file}:${todo.line}`;
+  // Use a hash of file path and comment text for uniqueness (line number ignored)
+  const hash = crypto
+    .createHash('sha256')
+    .update(`${todo.file}:${todo.commentText.trim()}`)
+    .digest('hex');
+  return `todo-issue-key:${hash}`;
 }
 
 /**

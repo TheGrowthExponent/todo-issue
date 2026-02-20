@@ -13,10 +13,14 @@
  * @param {Todo} todo
  * @returns {string}
  */
+import crypto from 'crypto';
 export function generateTodoKey(todo) {
-    // Use file path, original line, and (optionally) commit SHA for uniqueness
-    // Format: todo-issue-key:<file>:<line>
-    return `todo-issue-key:${todo.file}:${todo.line}`;
+    // Use a hash of file path and comment text for uniqueness (line number ignored)
+    const hash = crypto
+        .createHash('sha256')
+        .update(`${todo.file}:${todo.commentText.trim()}`)
+        .digest('hex');
+    return `todo-issue-key:${hash}`;
 }
 /**
  * Embeds the match key as a hidden HTML comment in the issue body
