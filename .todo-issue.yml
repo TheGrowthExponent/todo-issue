@@ -5,7 +5,7 @@ scan:
   diff_only: true
 
 issues:
-  assignee_strategy: 'owner' # "owner", "author", or "none"
+  assignee_strategy: 'none' # "owner", "author", or "none"
   milestone: 1 # Use milestone ID, not name
   labels:
     p1: ['priority:critical', 'security']
