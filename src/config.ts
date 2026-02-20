@@ -76,7 +76,11 @@ export function loadConfig(configPath: string = '.todo-issue.yml'): Config {
   if (fs.existsSync(absPath)) {
     try {
       const fileContent = fs.readFileSync(absPath, 'utf8');
-      userConfig = (yaml.load(fileContent) as Partial<Config>) || {};
+      const loadedConfig = yaml.load(fileContent);
+      userConfig =
+        typeof loadedConfig === 'object' && loadedConfig !== null
+          ? (loadedConfig as Partial<Config>)
+          : {};
     } catch (err) {
       if (err instanceof Error) {
         throw new Error(`Failed to parse config file at ${configPath}: ${err.message}`);
@@ -96,10 +100,11 @@ function deepMerge<T>(target: T, source: Partial<T>): T {
   if (typeof source !== 'object' || source === null) return target;
   const output = { ...target };
   for (const key of Object.keys(source) as (keyof T)[]) {
-    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-      output[key] = deepMerge((target[key] as any) || {}, source[key] as any);
-    } else if (source[key] !== undefined) {
-      output[key] = source[key] as T[typeof key];
+    const value = source[key];
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      output[key] = deepMerge((target[key] as any) || {}, value as any);
+    } else if (value !== undefined) {
+      output[key] = value as T[typeof key];
     }
   }
   return output;

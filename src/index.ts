@@ -62,7 +62,7 @@ async function run() {
 
     // === 4. Detect files to scan ===
     // If diff_only, only scan changed files; otherwise, scan all tracked files.
-    let filesToScan = [];
+    let filesToScan: string[] = [];
     if (config.scan.diff_only) {
       filesToScan = await getChangedFiles(octokit);
       core.info(`Scanning changed files only (${filesToScan.length}): ${filesToScan.join(', ')}`);
@@ -189,23 +189,37 @@ async function run() {
         );
         issuesCreated++;
         core.info(`Created issue for TODO: ${title}`);
-      } else if (existing.state === 'closed') {
+      } else if ((existing as { state?: string }).state === 'closed') {
         // Reopen if TODO reappeared
-        await reopenIssue(octokit, repo, existing.number);
-        await updateIssue(octokit, repo, existing.number, title, issueBody, {
-          labels: issueLabels,
-          assignees,
-          milestone,
-        });
+        await reopenIssue(octokit, repo, (existing as { number: number }).number);
+        await updateIssue(
+          octokit,
+          repo,
+          (existing as { number: number }).number,
+          title,
+          issueBody,
+          {
+            labels: issueLabels,
+            assignees,
+            milestone,
+          }
+        );
         issuesUpdated++;
         core.info(`Reopened and updated issue for TODO: ${title}`);
       } else {
         // Update if line number or context changed
-        await updateIssue(octokit, repo, existing.number, title, issueBody, {
-          labels: issueLabels,
-          assignees,
-          milestone,
-        });
+        await updateIssue(
+          octokit,
+          repo,
+          (existing as { number: number }).number,
+          title,
+          issueBody,
+          {
+            labels: issueLabels,
+            assignees,
+            milestone,
+          }
+        );
         issuesUpdated++;
         core.info(`Updated issue for TODO: ${title}`);
       }

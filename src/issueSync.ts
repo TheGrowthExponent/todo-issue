@@ -42,18 +42,26 @@ export function renderKeyComment(key: string): string {
  * @returns {Promise<object|null>} - Issue object or null if not found
  */
 export async function findExistingIssue(
-  octokit: any,
+  octokit: { rest: { search: { issuesAndPullRequests: (params: object) => Promise<any> } } },
   repo: Repo,
   key: string
-): Promise<any | null> {
+): Promise<{ number: number; state?: string } | null> {
   // Search both open and closed issues for the hidden key comment
   const query = `repo:${repo.owner}/${repo.repo} "${key}" in:body`;
   const results = await octokit.rest.search.issuesAndPullRequests({
     q: query,
     per_page: 1,
   });
-  if (results.data.items && results.data.items.length > 0) {
-    return results.data.items[0];
+  if (
+    results &&
+    results.data &&
+    Array.isArray(results.data.items) &&
+    results.data.items.length > 0
+  ) {
+    const item = results.data.items[0];
+    return typeof item === 'object' && item !== null && 'number' in item
+      ? (item as { number: number; state?: string })
+      : null;
   }
   return null;
 }
@@ -69,13 +77,13 @@ export async function findExistingIssue(
  * @returns {Promise<object>} - Created issue
  */
 export async function createIssue(
-  octokit: any,
+  octokit: { rest: { issues: { create: (params: object) => Promise<any> } } },
   repo: Repo,
   todo: Todo,
   issueConfig: IssueConfig,
   title: string,
   body: string
-): Promise<any> {
+): Promise<{ number: number }> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -89,7 +97,9 @@ export async function createIssue(
     assignees,
     milestone,
   });
-  return resp.data;
+  return resp && resp.data && typeof resp.data === 'object' && 'number' in resp.data
+    ? (resp.data as { number: number })
+    : { number: -1 };
 }
 
 /**
@@ -103,13 +113,13 @@ export async function createIssue(
  * @returns {Promise<object>} - Updated issue
  */
 export async function updateIssue(
-  octokit: any,
+  octokit: { rest: { issues: { update: (params: object) => Promise<any> } } },
   repo: Repo,
   issue_number: number,
   title: string,
   body: string,
   issueConfig: IssueConfig
-): Promise<any> {
+): Promise<{ number: number }> {
   const labels = issueConfig.labels || [];
   const assignees = issueConfig.assignees || [];
   const milestone = issueConfig.milestone || undefined;
@@ -124,7 +134,9 @@ export async function updateIssue(
     assignees,
     milestone,
   });
-  return resp.data;
+  return resp && resp.data && typeof resp.data === 'object' && 'number' in resp.data
+    ? (resp.data as { number: number })
+    : { number: -1 };
 }
 
 /**
@@ -136,7 +148,14 @@ export async function updateIssue(
  * @returns {Promise<void>}
  */
 export async function closeIssue(
-  octokit: any,
+  octokit: {
+    rest: {
+      issues: {
+        createComment: (params: object) => Promise<any>;
+        update: (params: object) => Promise<any>;
+      };
+    };
+  },
   repo: Repo,
   issue_number: number,
   closingComment: string
@@ -164,7 +183,11 @@ export async function closeIssue(
  * @param {number} issue_number
  * @returns {Promise<void>}
  */
-export async function reopenIssue(octokit: any, repo: Repo, issue_number: number): Promise<void> {
+export async function reopenIssue(
+  octokit: { rest: { issues: { update: (params: object) => Promise<any> } } },
+  repo: Repo,
+  issue_number: number
+): Promise<void> {
   await octokit.rest.issues.update({
     owner: repo.owner,
     repo: repo.repo,

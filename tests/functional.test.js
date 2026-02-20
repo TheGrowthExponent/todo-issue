@@ -46,6 +46,10 @@ function foo() {
       contextLines: 2,
     });
 
+    // Debug log to verify file reading and regex matching
+    console.log('DEBUG: files scanned:', files);
+    console.log('DEBUG: todos found:', todos);
+
     expect(todos.length).toBe(5);
 
     const priorities = todos.map(classifyPriority).map((r) => r.priority);
