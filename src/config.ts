@@ -47,7 +47,7 @@ const DEFAULT_CONFIG: Config = {
     diff_only: true,
   },
   issues: {
-    assignee_strategy: 'owner',
+    assignee_strategy: 'author',
     milestone: 1,
     labels: {
       p1: ['priority:critical', 'security'],
