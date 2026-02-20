@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run pnpm ci
-        run: pnpm ci
-
       - name: Run TODO→ISSUE Action
         uses: ./
         with:
