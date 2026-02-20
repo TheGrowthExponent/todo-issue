@@ -8,13 +8,13 @@ Automatically convert TODO messages in code to GitHub issues.
 
 ## Functional Testing
 
-This project uses **Jest** for functional and unit testing.
+This project uses **Vitest** for functional and unit testing.
 
 ### Running Tests
 
 ```sh
-npm install
-npm test
+pnpm install
+pnpm run test
 ```
 
 ### Test Coverage
