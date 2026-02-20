@@ -25,7 +25,7 @@ type Config = {
   };
   issues: {
     assignee_strategy: 'owner' | 'author' | 'none';
-    milestone: string;
+    milestone: number;
     labels: {
       p1: string[];
       p2: string[];

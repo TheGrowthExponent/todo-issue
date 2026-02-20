@@ -49,8 +49,8 @@ export interface IssueConfig {
   labels?: string[];
   /** GitHub usernames to assign to the issue */
   assignees?: string[];
-  /** Milestone name or number to assign */
-  milestone?: string;
+  /** Milestone number (ID) to assign */
+  milestone?: number;
 }
 
 /**

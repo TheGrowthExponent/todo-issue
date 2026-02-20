@@ -9,7 +9,15 @@ import { Repo } from './types.js';
  * @param octokit - Optional, authenticated Octokit instance.
  * @returns Array of changed file paths (relative to repo root).
  */
-export async function getChangedFiles(octokit: any = null): Promise<string[]> {
+interface CommitPayload {
+  added?: string[];
+  modified?: string[];
+  removed?: string[];
+}
+
+export async function getChangedFiles(
+  octokit: ReturnType<typeof github.getOctokit> | null = null
+): Promise<string[]> {
   // Try GitHub Actions context first
   const context = github.context;
 
@@ -49,10 +57,10 @@ export async function getChangedFiles(octokit: any = null): Promise<string[]> {
     // Fallback: try to get changed files from payload (may be truncated)
     if (context.payload.commits && Array.isArray(context.payload.commits)) {
       const files = new Set<string>();
-      for (const commit of context.payload.commits) {
-        if (commit.added) commit.added.forEach((f: string) => files.add(f));
-        if (commit.modified) commit.modified.forEach((f: string) => files.add(f));
-        if (commit.removed) commit.removed.forEach((f: string) => files.add(f));
+      for (const commit of context.payload.commits as CommitPayload[]) {
+        if (commit.added) commit.added.forEach((f) => files.add(f));
+        if (commit.modified) commit.modified.forEach((f) => files.add(f));
+        if (commit.removed) commit.removed.forEach((f) => files.add(f));
       }
       return Array.from(files);
     }
