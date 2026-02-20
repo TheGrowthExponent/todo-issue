@@ -126,7 +126,9 @@ async function run() {
 
       // Compose issue config (labels, assignee, milestone)
       const issueLabels = (
-        config.issues.labels?.[priority.toLowerCase()] || []
+        (config.issues.labels as Record<string, string[]>)[
+          priority.toLowerCase()
+        ] || []
       ).concat(["auto-generated"]);
       const assignees =
         config.issues.assignee_strategy === "owner"

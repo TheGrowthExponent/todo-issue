@@ -21,13 +21,7 @@ export interface Repo {
 }
 
 export interface IssueConfig {
-  labels?: {
-    [key: string]: string[];
-    p1: string[];
-    p2: string[];
-    p3: string[];
-    p4: string[];
-  };
+  labels?: string[];
   assignees?: string[];
   milestone?: string;
 }
