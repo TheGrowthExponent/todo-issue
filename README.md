@@ -37,6 +37,10 @@ on:
     branches:
       - '**'
 
+permissions:
+  issues: write
+  contents: read
+  
 jobs:
   todo_scan:
     runs-on: ubuntu-latest
