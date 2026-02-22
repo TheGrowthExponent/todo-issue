@@ -5,6 +5,10 @@ on:
     branches:
       - '**'
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   todo_scan:
     name: 'Scan for TODOs and create GitHub Issues'
