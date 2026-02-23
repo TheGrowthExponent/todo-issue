@@ -82,7 +82,9 @@ export function loadConfig(configPath: string = '.todo-issue.yml'): Config {
           : {};
     } catch (err) {
       if (err instanceof Error) {
-        throw new Error(`Failed to parse config file at ${configPath}: ${err.message}`);
+        throw new Error(`Failed to parse config file at ${configPath}: ${err.message}`, {
+          cause: err,
+        });
       }
       throw err;
     }

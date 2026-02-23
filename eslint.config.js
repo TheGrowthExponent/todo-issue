@@ -53,13 +53,8 @@ export default defineConfig([
     ignores: ['*.js', '*.d.ts', 'tests/__mocks__/', 'docs/', 'coverage/', 'build/'],
   },
   {
-    files: ['tests/**/*.ts', 'tests/**/*.js'],
+    files: ['tests/**/*.js'],
     languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        project: './tsconfig.json',
-        sourceType: 'module',
-      },
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {

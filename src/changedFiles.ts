@@ -75,7 +75,7 @@ export async function getChangedFiles(
 
   // Fallback: use git diff (works locally or in CI)
   const git = simpleGit();
-  let diffFiles: string[] = [];
+  let diffFiles: string[];
   try {
     // Get changed files between HEAD and HEAD^
     const diff = await git.diff(['--name-only', 'HEAD^', 'HEAD']);
