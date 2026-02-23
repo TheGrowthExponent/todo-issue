@@ -1,0 +1,24 @@
+name: Sync GitHub Issues to Jira
+
+on:
+  issues:
+    types: [opened, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log only — no tickets created)'
+        default: 'false'
+        type: boolean
+
+jobs:
+  sync:
+    uses: TheGrowthExponent/gh-issue-jira-sync/.github/workflows/sync.yml@main
+    with:
+      jira_project_key: ${{ vars.JIRA_PROJECT_KEY }}
+      dry_run: ${{ github.event.inputs.dry_run || 'false' }}
+      bulk_sync: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+    secrets:
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+      github_token: ${{ secrets.GITHUB_TOKEN }}
