@@ -1,8 +1,6 @@
 // issueSync.js
 // Handles idempotent GitHub Issue creation, update, close, and reopen for TODOs
 
-import { Octokit } from '@octokit/rest';
-
 import { Todo, Repo, IssueConfig, IssueContext } from './types.js';
 
 /**

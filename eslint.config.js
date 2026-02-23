@@ -1,4 +1,4 @@
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import js from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
@@ -6,6 +6,7 @@ import typescriptParser from '@typescript-eslint/parser';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
 
 export default defineConfig([
+  globalIgnores(['dist/', 'node_modules/']),
   js.configs.recommended,
   {
     files: ['src/**/*.ts'],
@@ -29,9 +30,12 @@ export default defineConfig([
       },
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: {},
-      env: {
-        node: true,
+      globals: {
+        process: true,
+        require: true,
+        module: true,
+        __dirname: true,
+        __filename: true,
       },
     },
     settings: {
@@ -41,17 +45,7 @@ export default defineConfig([
         },
       },
     },
-    ignores: [
-      'dist/',
-      'node_modules/',
-      '*.js',
-      '*.d.ts',
-      'tests/__mocks__/',
-      'docs/',
-      'coverage/',
-      'build/',
-    ],
-    excludedFiles: ['tests/__mocks__/**/*.js'],
+    ignores: ['*.js', '*.d.ts', 'tests/__mocks__/', 'docs/', 'coverage/', 'build/'],
   },
   {
     files: ['tests/**/*.ts', 'tests/**/*.js'],
@@ -71,11 +65,34 @@ export default defineConfig([
         expect: true,
         vitest: true,
         it: true,
+        process: true,
+        require: true,
+        module: true,
+        __dirname: true,
+        __filename: true,
       },
     },
     rules: {
       'no-undef': 'off',
       'no-unused-vars': 'warn',
+    },
+  },
+  {
+    files: ['vitest.config.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        URL: true,
+        process: true,
+        require: true,
+        module: true,
+        __dirname: true,
+        __filename: true,
+      },
+    },
+    rules: {
+      'no-undef': 'off',
     },
   },
 ]);
