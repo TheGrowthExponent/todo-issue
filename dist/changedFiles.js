@@ -55,7 +55,7 @@ export async function getChangedFiles(octokit = null) {
     }
     // Fallback: use git diff (works locally or in CI)
     const git = simpleGit();
-    let diffFiles = [];
+    let diffFiles;
     try {
         // Get changed files between HEAD and HEAD^
         const diff = await git.diff(['--name-only', 'HEAD^', 'HEAD']);

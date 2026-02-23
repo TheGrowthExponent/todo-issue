@@ -17,7 +17,7 @@ const DEFAULT_CONFIG = {
         diff_only: true,
     },
     issues: {
-        assignee_strategy: 'owner',
+        assignee_strategy: 'author',
         milestone: 1,
         labels: {
             p1: ['priority:critical', 'security'],
@@ -51,7 +51,9 @@ export function loadConfig(configPath = '.todo-issue.yml') {
         }
         catch (err) {
             if (err instanceof Error) {
-                throw new Error(`Failed to parse config file at ${configPath}: ${err.message}`);
+                const error = new Error(`Failed to parse config file at ${configPath}: ${err.message}`);
+                error.cause = err;
+                throw error;
             }
             throw err;
         }

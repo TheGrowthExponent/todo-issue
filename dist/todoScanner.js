@@ -11,7 +11,6 @@ import fs from 'fs';
 function buildTagRegex(tags) {
     const tagPattern = tags.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
     // Matches both single-line and multi-line comment styles
-    // eslint-disable-next-line no-useless-escape -- Escapes are intentional for robustness across comment styles
     return new RegExp([
         // Single-line: // TODO, # TODO, -- TODO, etc.
         `(?:\\/\\/|#|--|;|%)\\s*(${tagPattern})(\\([^)]*\\))?:?\\s*(.*)`,
