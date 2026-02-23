@@ -3,6 +3,7 @@ import js from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
 import typescriptParser from '@typescript-eslint/parser';
+import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
 
 export default defineConfig([
   js.configs.recommended,
@@ -11,6 +12,7 @@ export default defineConfig([
     plugins: {
       import: importPlugin,
       prettier: prettierPlugin,
+      '@typescript-eslint': typescriptEslintPlugin,
     },
     rules: {
       'prettier/prettier': 'error',
@@ -28,6 +30,9 @@ export default defineConfig([
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {},
+      env: {
+        node: true,
+      },
     },
     settings: {
       'import/resolver': {
@@ -46,6 +51,7 @@ export default defineConfig([
       'coverage/',
       'build/',
     ],
+    excludedFiles: ['tests/__mocks__/**/*.js'],
   },
   {
     files: ['tests/**/*.ts', 'tests/**/*.js'],
