@@ -14,7 +14,7 @@ import { Todo } from './types.js';
 function buildTagRegex(tags: string[]): RegExp {
   const tagPattern = tags.map((t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
   // Matches both single-line and multi-line comment styles
-  // eslint-disable-next-line no-useless-escape -- Escapes are intentional for robustness across comment styles
+
   return new RegExp(
     [
       // Single-line: // TODO, # TODO, -- TODO, etc.

@@ -51,7 +51,7 @@ export function renderKeyComment(key: string): string {
   compatibility with all plugin-extended octokit instances. Do not remove this exemption
   unless all usages and plugin extensions are strictly typed and compatible.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export async function findExistingIssue(
   octokit: any,
   repo: Repo,
@@ -217,7 +217,6 @@ export async function reopenIssue(octokit: any, repo: Repo, issue_number: number
     })
     .catch(() => {});
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 /**
  * Renders the GitHub Issue body for a TODO, including metadata and key comment

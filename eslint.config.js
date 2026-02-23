@@ -17,7 +17,12 @@ export default defineConfig([
     },
     rules: {
       'prettier/prettier': 'error',
-      'import/no-unresolved': ['error'],
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['\\.js$'],
+        },
+      ],
       semi: ['error', 'always'],
       quotes: ['error', 'single'],
       'no-unused-vars': 'warn',
